@@ -10,9 +10,12 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import org.zakky.googlerepositorychecker.retrofit2.converter.GoogleRepositoryXmlConverterFactory
+import org.zakky.googlerepositorychecker.retrofit2.model.Artifact
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +44,14 @@ class MainActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
+
+
         val retrofit = Retrofit.Builder().baseUrl("https://dl.google.com/dl/android/maven2/")
+                .client(client)
                 .addConverterFactory(GoogleRepositoryXmlConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
@@ -49,18 +59,41 @@ class MainActivity : AppCompatActivity() {
         val service = retrofit.create(GoogleRepositoryService::class.java);
 
 
-        val listGroups = service.listGroups()
+//        val listGroups = service.listGroups()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//
+//        listGroups.subscribe(object : SingleObserver<List<String>> {
+//            var disposable : Disposable? = null
+//
+//            override fun onSubscribe(d: Disposable) {
+//                disposable = d
+//            }
+//
+//            override fun onSuccess(body: List<String>) {
+//                runOnUiThread {
+//                    Toast.makeText(this@MainActivity, body.joinToString(), Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//            override fun onError(e: Throwable) {
+//                Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_SHORT).show()
+//            }
+//        })
+
+
+        val artifact = service.listArtifact(GoogleRepositoryService.toPath("com.android.support.constraint"))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
 
-        listGroups.subscribe(object : SingleObserver<List<String>> {
+        artifact.subscribe(object : SingleObserver<List<Artifact>> {
             var disposable : Disposable? = null
 
             override fun onSubscribe(d: Disposable) {
                 disposable = d
             }
 
-            override fun onSuccess(body: List<String>) {
+            override fun onSuccess(body: List<Artifact>) {
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, body.joinToString(), Toast.LENGTH_SHORT).show()
                 }
