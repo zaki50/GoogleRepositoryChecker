@@ -14,8 +14,6 @@ import android.widget.Toast
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
-import io.realm.RealmChangeListener
-import io.realm.RealmResults
 import kotlinx.android.synthetic.main.activity_main.*
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -27,8 +25,6 @@ import retrofit2.Retrofit
 import toothpick.Scope
 import toothpick.Toothpick
 import javax.inject.Inject
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
 
 
 class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
@@ -44,8 +40,6 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
     lateinit var realm: Realm
 
     private var refreshing: Subscription? = null
-
-    private lateinit var allGroups: RealmResults<Artifact>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
@@ -65,11 +59,7 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
 
         navigation.setOnNavigationItemSelectedListener(this)
 
-        allGroups = realm.where(Artifact::class.java).findAll()
-        allGroups.addChangeListener(RealmChangeListener {
-            Toast.makeText(this, it.joinToString(), Toast.LENGTH_SHORT).show()
-        })
-
+        val allGroups = realm.where(Artifact::class.java).findAll()
         if (allGroups.isEmpty()) {
             refreshData()
         }
@@ -151,15 +141,15 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
 }
 
 internal class MainFragmentStatePagerAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
-    val fragmentsList = listOf<Pair<KClass<out Fragment>, KFunction<Fragment>>>(
+    val fragmentsList = listOf(
             FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
             AllGroupsFragment::class to AllGroupsFragment.Companion::newInstance,
             SettingsFragment::class to SettingsFragment.Companion::newInstance
     )
 
-    val navigationMenuIds = listOf<Int>(
+    val navigationMenuIds = listOf(
             R.id.navigation_favorite,
-            R.id.navigation_list,
+            R.id.navigation_all_groups,
             R.id.navigation_settings
     )
 
@@ -171,6 +161,7 @@ internal class MainFragmentStatePagerAdapter(supportFragmentManager: FragmentMan
     fun menuIdForPageIndex(index: Int): Int {
         return navigationMenuIds[index]
     }
+
     fun indexForMenuId(@IdRes menuItemId: Int): Int {
         return navigationMenuIds.indexOf(menuItemId)
     }
