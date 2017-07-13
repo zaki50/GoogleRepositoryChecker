@@ -16,6 +16,7 @@ import io.realm.internal.RealmObjectProxy
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
+import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
 
@@ -52,6 +53,7 @@ class AllGroupsFragment : Fragment() {
                 .distinct(Artifact::groupName.name).sort(Artifact::groupName.name)
 
         list.layoutManager = LinearLayoutManager(context)
+        list.addItemDecoration(ItemDividerDecoration(context))
         list.adapter = AllGroupsAdapter(allGroups)
 
         return view
@@ -85,6 +87,7 @@ internal class AllGroupsAdapter(collection: OrderedRealmCollection<Artifact>)
         holder.groupName.text = groupName
 
         val objectProxy = item as RealmObjectProxy
+        @Suppress("INACCESSIBLE_TYPE")
         val realm = objectProxy.`realmGet$proxyState`().`realm$realm` as Realm
 
         val allArtifacts = realm.where(Artifact::class.java)
