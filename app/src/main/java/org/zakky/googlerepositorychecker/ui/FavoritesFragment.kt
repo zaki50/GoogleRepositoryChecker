@@ -1,14 +1,15 @@
-package org.zakky.googlerepositorychecker
+package org.zakky.googlerepositorychecker.ui
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import org.zakky.googlerepositorychecker.R
 
-class SettingsFragment : Fragment() {
+class FavoritesFragment : Fragment() {
     companion object {
-        fun newInstance(): SettingsFragment {
-            return SettingsFragment()
+        fun newInstance(): FavoritesFragment {
+            return FavoritesFragment()
         }
     }
 

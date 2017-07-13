@@ -1,4 +1,4 @@
-package org.zakky.googlerepositorychecker
+package org.zakky.googlerepositorychecker.ui
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener
@@ -14,6 +14,8 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
+import org.zakky.googlerepositorychecker.MyApplication
+import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.retrofit2.model.Artifact
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
