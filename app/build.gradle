@@ -26,6 +26,7 @@ android {
 }
 
 kapt {
+    generateStubs = true
     arguments {
         arg('toothpick_registry_package_name', "${android.defaultConfig.applicationId}.toothpick")
     }
