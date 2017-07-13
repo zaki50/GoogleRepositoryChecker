@@ -10,7 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import toothpick.config.Module
 
-class ApplicationModule(app: MyApplication) : Module() {
+class ApplicationModule(@Suppress("UNUSED_PARAMETER") app: MyApplication) : Module() {
     init {
         bindRetrofitAsSingleton()
 
