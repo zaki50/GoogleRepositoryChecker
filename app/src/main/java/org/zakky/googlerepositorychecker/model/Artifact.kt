@@ -1,6 +1,7 @@
 package org.zakky.googlerepositorychecker.model
 
 import io.realm.RealmModel
+import io.realm.RealmObject
 import io.realm.annotations.RealmClass
 import io.realm.annotations.Required
 
@@ -17,7 +18,9 @@ open class Artifact(
         get() = versions!!.split(",")
 
     override fun toString(): String {
-        val stringBuilder = StringBuilder("Artifact = {groupName:")
+        val stringBuilder = StringBuilder("Artifact = ")
+        stringBuilder.append(if (RealmObject.isManaged(this)) "managed" else "unmanaged")
+        stringBuilder.append("{groupName:")
         stringBuilder.append(groupName)
         stringBuilder.append("},{artifactName:")
         stringBuilder.append(artifactName)
