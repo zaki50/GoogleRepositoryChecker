@@ -2,6 +2,7 @@ package org.zakky.googlerepositorychecker
 
 import android.annotation.SuppressLint
 import android.app.Application
+import io.realm.Realm
 import org.zakky.googlerepositorychecker.toothpick.ApplicationModule
 import toothpick.Toothpick
 import toothpick.configuration.Configuration
@@ -16,10 +17,12 @@ open class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        Realm.init(this)
+
         setupToothpick()
     }
 
-     private fun setupToothpick() {
+    private fun setupToothpick() {
         setToothpickConfiguration()
 
         val scope = Toothpick.openScope(APP_SCOPE_NAME)

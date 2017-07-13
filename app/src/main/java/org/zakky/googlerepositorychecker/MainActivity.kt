@@ -12,6 +12,7 @@ import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import org.zakky.googlerepositorychecker.retrofit2.model.Artifact
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
@@ -76,6 +77,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var retrofit: Retrofit
 
+    @Inject
+    lateinit var realm: Realm
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
         Toothpick.inject(this, scope)
@@ -139,4 +143,9 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        realm.close()
+    }
 }

@@ -20,6 +20,5 @@ interface GoogleRepositoryService {
 
     @GET("{groupPath}/group-index.xml")
     @ArtifactXml
-
     fun listArtifact(@Path("groupPath", encoded = true) groupPath: String): Single<List<Artifact>>
 }
