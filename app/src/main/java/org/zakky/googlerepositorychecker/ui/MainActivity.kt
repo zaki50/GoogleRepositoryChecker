@@ -31,21 +31,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
 
-class MainActivity : AppCompatActivity() {
-
-    private val mOnNavigationItemSelectedListener = OnNavigationItemSelectedListener { item ->
-        val index = pagerAdapter.indexForMenuId(item.itemId)
-        if (index < 0) {
-            return@OnNavigationItemSelectedListener false
-        }
-
-        pager.setCurrentItem(index, true)
-        return@OnNavigationItemSelectedListener true
-    }
-
-    private val pagerAdapter: MainFragmentStatePagerAdapter by lazy { MainFragmentStatePagerAdapter(supportFragmentManager) }
+class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
 
     private lateinit var scope: Scope
+
+    private val pagerAdapter: MainFragmentStatePagerAdapter by lazy { MainFragmentStatePagerAdapter(supportFragmentManager) }
 
     @Inject
     lateinit var retrofit: Retrofit
@@ -56,21 +46,6 @@ class MainActivity : AppCompatActivity() {
     private var refreshing: Subscription? = null
 
     private lateinit var allGroups: RealmResults<Artifact>
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.refresh -> {
-                refreshData()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
@@ -88,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navigation.setOnNavigationItemSelectedListener(this)
 
         allGroups = realm.where(Artifact::class.java).findAll()
         allGroups.addChangeListener(RealmChangeListener {
@@ -98,6 +73,44 @@ class MainActivity : AppCompatActivity() {
         if (allGroups.isEmpty()) {
             refreshData()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        realm.close()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        refreshing?.cancel()
+        refreshing = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.refresh -> {
+                refreshData()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        val index = pagerAdapter.indexForMenuId(item.itemId)
+        if (index < 0) {
+            return false
+        }
+
+        pager.setCurrentItem(index, true)
+        return true
     }
 
     private fun refreshData() {
@@ -135,22 +148,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
     }
-
-    override fun onPause() {
-        super.onPause()
-
-        refreshing?.cancel()
-        refreshing = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        realm.close()
-    }
 }
 
-class MainFragmentStatePagerAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
+internal class MainFragmentStatePagerAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
     val fragmentsList = listOf<Pair<KClass<out Fragment>, KFunction<Fragment>>>(
             FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
             AllGroupsFragment::class to AllGroupsFragment.Companion::newInstance,
