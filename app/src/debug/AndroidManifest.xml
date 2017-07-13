@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="org.zakky.googlerepositorychecker">
+
+    <application
+        android:name=".DebugApplication"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="name"/>
+
+</manifest>

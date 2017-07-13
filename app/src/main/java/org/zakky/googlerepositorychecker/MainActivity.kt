@@ -1,7 +1,11 @@
 package org.zakky.googlerepositorychecker
 
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import io.reactivex.SingleObserver
@@ -9,54 +13,84 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import org.zakky.googlerepositorychecker.retrofit2.converter.GoogleRepositoryXmlConverterFactory
 import org.zakky.googlerepositorychecker.retrofit2.model.Artifact
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import toothpick.Toothpick
+import javax.inject.Inject
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 
 
 class MainActivity : AppCompatActivity() {
 
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+    private val mOnNavigationItemSelectedListener = OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_home -> {
-                message.setText(R.string.title_home)
+            R.id.navigation_favorite -> {
+                pager.setCurrentItem(0, true)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
-                message.setText(R.string.title_dashboard)
+            R.id.navigation_list -> {
+                pager.setCurrentItem(1, true)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
-                message.setText(R.string.title_notifications)
+            R.id.navigation_settings -> {
+                pager.setCurrentItem(2, true)
                 return@OnNavigationItemSelectedListener true
             }
         }
         false
     }
 
+    private val pagerAdapter: PagerAdapter by lazy {
+
+        object : FragmentStatePagerAdapter(supportFragmentManager) {
+            val fragmentsList = listOf<Pair<KClass<out Fragment>, KFunction<Fragment>>>(
+                    FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
+                    AllGroupsFragment::class to AllGroupsFragment.Companion::newInstance,
+                    SettingsFragment::class to SettingsFragment.Companion::newInstance
+            )
+
+            override fun getItem(position: Int): Fragment = fragmentsList[position].second.call()
+
+            override fun getCount() = fragmentsList.size
+        }
+    }
+
+    private val pager: ViewPager by lazy {
+        findViewById<ViewPager>(R.id.pager).apply {
+            adapter = pagerAdapter
+            addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+                override fun onPageSelected(position: Int) {
+                    navigation.selectedItemId = when (position) {
+                        0 -> R.id.navigation_favorite
+                        1 -> R.id.navigation_list
+                        2 -> R.id.navigation_settings
+                        else -> 0
+                    }
+                }
+            })
+        }
+    }
+
+    @Inject
+    lateinit var retrofit: Retrofit
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
+        Toothpick.inject(this, scope)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        pager
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
 
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
-
-
-        val retrofit = Retrofit.Builder().baseUrl("https://dl.google.com/dl/android/maven2/")
-                .client(client)
-                .addConverterFactory(GoogleRepositoryXmlConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-
         val service = retrofit.create(GoogleRepositoryService::class.java);
+
+
 
 
 //        val listGroups = service.listGroups()
@@ -87,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
 
         artifact.subscribe(object : SingleObserver<List<Artifact>> {
-            var disposable : Disposable? = null
+            var disposable: Disposable? = null
 
             override fun onSubscribe(d: Disposable) {
                 disposable = d
