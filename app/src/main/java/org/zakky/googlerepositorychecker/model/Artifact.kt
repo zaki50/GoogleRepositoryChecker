@@ -2,6 +2,7 @@ package org.zakky.googlerepositorychecker.model
 
 import io.realm.RealmModel
 import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 import io.realm.annotations.Required
 
@@ -12,7 +13,10 @@ open class Artifact(
         @Required
         var artifactName: String? = null,
         @Required
-        var versions: String? = null
+        var versions: String? = null,
+        @PrimaryKey
+        @Required
+        var id: String = "${groupName ?: ""}:${artifactName ?: ""}"
 ) : RealmModel {
     val versionList: List<String>
         get() = versions!!.split(",")

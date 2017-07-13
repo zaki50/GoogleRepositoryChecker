@@ -7,11 +7,14 @@ import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
+import io.realm.RealmChangeListener
+import io.realm.RealmResults
 import kotlinx.android.synthetic.main.activity_main.*
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -20,6 +23,7 @@ import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
+import toothpick.Scope
 import toothpick.Toothpick
 import javax.inject.Inject
 import kotlin.reflect.KClass
@@ -60,6 +64,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var scope: Scope
+
     @Inject
     lateinit var retrofit: Retrofit
 
@@ -68,8 +74,26 @@ class MainActivity : AppCompatActivity() {
 
     private var refreshing: Subscription? = null
 
+
+    private lateinit var allGroups: RealmResults<Artifact>
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.refresh -> {
+                refreshData()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        val scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
+        scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
         Toothpick.inject(this, scope)
 
         super.onCreate(savedInstanceState)
@@ -91,20 +115,39 @@ class MainActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-        val service = retrofit.create(GoogleRepositoryService::class.java)
+        allGroups = realm.where(Artifact::class.java).findAll()
+        allGroups.addChangeListener(RealmChangeListener {
+            Toast.makeText(this, it.joinToString(), Toast.LENGTH_SHORT).show()
+        })
 
+        if (allGroups.isEmpty()) {
+            refreshData()
+        }
+    }
+
+    private fun refreshData() {
+        val service = retrofit.create(GoogleRepositoryService::class.java)
         service.listGroups()
                 .flatMapPublisher { groupNames -> Single.merge(groupNames.map { service.listArtifact(GoogleRepositoryService.toPath(it)) }) }
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : Subscriber<List<Artifact>> {
+                    private var isFirstSave = true
+
                     override fun onSubscribe(s: Subscription) {
                         refreshing = s
                         s.request(Long.MAX_VALUE)
                     }
 
-                    override fun onNext(t: List<Artifact>) {
-                        Toast.makeText(this@MainActivity, t.joinToString(), Toast.LENGTH_SHORT).show()
+                    override fun onNext(artifacts: List<Artifact>) {
+                        scope.getInstance(Realm::class.java).use {
+                            it.executeTransaction {
+                                if (isFirstSave) {
+                                    it.delete(Artifact::class.java)
+                                    isFirstSave = false
+                                }
+                                it.copyToRealmOrUpdate(artifacts)
+                            }
+                        }
                     }
 
                     override fun onComplete() {
