@@ -8,12 +8,13 @@ import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import io.reactivex.SingleObserver
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
@@ -65,6 +66,8 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var realm: Realm
 
+    private var refreshing: Subscription? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
         Toothpick.inject(this, scope)
@@ -88,56 +91,38 @@ class MainActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-
         val service = retrofit.create(GoogleRepositoryService::class.java)
 
-
-
-
-//        val listGroups = service.listGroups()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//
-//        listGroups.subscribe(object : SingleObserver<List<String>> {
-//            var disposable : Disposable? = null
-//
-//            override fun onSubscribe(d: Disposable) {
-//                disposable = d
-//            }
-//
-//            override fun onSuccess(body: List<String>) {
-//                runOnUiThread {
-//                    Toast.makeText(this@MainActivity, body.joinToString(), Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//
-//            override fun onError(e: Throwable) {
-//                Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_SHORT).show()
-//            }
-//        })
-
-
-        val artifact = service.listArtifact(GoogleRepositoryService.toPath("com.android.support.constraint"))
+        service.listGroups()
+                .flatMapPublisher { groupNames -> Single.merge(groupNames.map { service.listArtifact(GoogleRepositoryService.toPath(it)) }) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : Subscriber<List<Artifact>> {
+                    override fun onSubscribe(s: Subscription) {
+                        refreshing = s
+                        s.request(Long.MAX_VALUE)
+                    }
 
-        artifact.subscribe(object : SingleObserver<List<Artifact>> {
-            var disposable: Disposable? = null
+                    override fun onNext(t: List<Artifact>) {
+                        Toast.makeText(this@MainActivity, t.joinToString(), Toast.LENGTH_SHORT).show()
+                    }
 
-            override fun onSubscribe(d: Disposable) {
-                disposable = d
-            }
+                    override fun onComplete() {
+                        refreshing = null
+                    }
 
-            override fun onSuccess(body: List<Artifact>) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, body.joinToString(), Toast.LENGTH_SHORT).show()
-                }
-            }
+                    override fun onError(t: Throwable) {
+                        Toast.makeText(this@MainActivity, t.toString(), Toast.LENGTH_SHORT).show()
+                        refreshing = null
+                    }
+                })
+    }
 
-            override fun onError(e: Throwable) {
-                Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_SHORT).show()
-            }
-        })
+    override fun onPause() {
+        super.onPause()
+
+        refreshing?.cancel()
+        refreshing = null
     }
 
     override fun onDestroy() {
