@@ -1,10 +1,11 @@
 package org.zakky.googlerepositorychecker.ui
 
 import android.os.Bundle
+import android.support.annotation.IdRes
 import android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -33,36 +34,16 @@ import kotlin.reflect.KFunction
 class MainActivity : AppCompatActivity() {
 
     private val mOnNavigationItemSelectedListener = OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_favorite -> {
-                pager.setCurrentItem(0, true)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_list -> {
-                pager.setCurrentItem(1, true)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_settings -> {
-                pager.setCurrentItem(2, true)
-                return@OnNavigationItemSelectedListener true
-            }
+        val index = pagerAdapter.indexForMenuId(item.itemId)
+        if (index < 0) {
+            return@OnNavigationItemSelectedListener false
         }
-        false
+
+        pager.setCurrentItem(index, true)
+        return@OnNavigationItemSelectedListener true
     }
 
-    private val pagerAdapter: PagerAdapter by lazy {
-        object : FragmentStatePagerAdapter(supportFragmentManager) {
-            val fragmentsList = listOf<Pair<KClass<out Fragment>, KFunction<Fragment>>>(
-                    FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
-                    AllGroupsFragment::class to AllGroupsFragment.Companion::newInstance,
-                    SettingsFragment::class to SettingsFragment.Companion::newInstance
-            )
-
-            override fun getItem(position: Int): Fragment = fragmentsList[position].second.call()
-
-            override fun getCount() = fragmentsList.size
-        }
-    }
+    private val pagerAdapter: MainFragmentStatePagerAdapter by lazy { MainFragmentStatePagerAdapter(supportFragmentManager) }
 
     private lateinit var scope: Scope
 
@@ -73,7 +54,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var realm: Realm
 
     private var refreshing: Subscription? = null
-
 
     private lateinit var allGroups: RealmResults<Artifact>
 
@@ -103,12 +83,7 @@ class MainActivity : AppCompatActivity() {
             adapter = pagerAdapter
             addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageSelected(position: Int) {
-                    navigation.selectedItemId = when (position) {
-                        0 -> R.id.navigation_favorite
-                        1 -> R.id.navigation_list
-                        2 -> R.id.navigation_settings
-                        else -> 0
-                    }
+                    navigation.selectedItemId = pagerAdapter.menuIdForPageIndex(position)
                 }
             })
         }
@@ -172,5 +147,31 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         realm.close()
+    }
+}
+
+class MainFragmentStatePagerAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
+    val fragmentsList = listOf<Pair<KClass<out Fragment>, KFunction<Fragment>>>(
+            FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
+            AllGroupsFragment::class to AllGroupsFragment.Companion::newInstance,
+            SettingsFragment::class to SettingsFragment.Companion::newInstance
+    )
+
+    val navigationMenuIds = listOf<Int>(
+            R.id.navigation_favorite,
+            R.id.navigation_list,
+            R.id.navigation_settings
+    )
+
+    override fun getItem(position: Int): Fragment = fragmentsList[position].second.call()
+
+    override fun getCount() = fragmentsList.size
+
+    @IdRes
+    fun menuIdForPageIndex(index: Int): Int {
+        return navigationMenuIds[index]
+    }
+    fun indexForMenuId(@IdRes menuItemId: Int): Int {
+        return navigationMenuIds.indexOf(menuItemId)
     }
 }
