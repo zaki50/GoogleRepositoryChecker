@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val pagerAdapter: PagerAdapter by lazy {
-
         object : FragmentStatePagerAdapter(supportFragmentManager) {
             val fragmentsList = listOf<Pair<KClass<out Fragment>, KFunction<Fragment>>>(
                     FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
@@ -57,22 +56,6 @@ class MainActivity : AppCompatActivity() {
             override fun getItem(position: Int): Fragment = fragmentsList[position].second.call()
 
             override fun getCount() = fragmentsList.size
-        }
-    }
-
-    private val pager: ViewPager by lazy {
-        findViewById<ViewPager>(R.id.pager).apply {
-            adapter = pagerAdapter
-            addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-                override fun onPageSelected(position: Int) {
-                    navigation.selectedItemId = when (position) {
-                        0 -> R.id.navigation_favorite
-                        1 -> R.id.navigation_list
-                        2 -> R.id.navigation_settings
-                        else -> 0
-                    }
-                }
-            })
         }
     }
 
@@ -89,12 +72,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        pager
+        pager.apply {
+            adapter = pagerAdapter
+            addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+                override fun onPageSelected(position: Int) {
+                    navigation.selectedItemId = when (position) {
+                        0 -> R.id.navigation_favorite
+                        1 -> R.id.navigation_list
+                        2 -> R.id.navigation_settings
+                        else -> 0
+                    }
+                }
+            })
+        }
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
 
-        val service = retrofit.create(GoogleRepositoryService::class.java);
+        val service = retrofit.create(GoogleRepositoryService::class.java)
 
 
 
