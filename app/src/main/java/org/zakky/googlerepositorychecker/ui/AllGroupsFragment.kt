@@ -55,6 +55,7 @@ class AllGroupsFragment : Fragment() {
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
         list.adapter = AllGroupsAdapter(allGroups)
+        list.setHasFixedSize(true)
 
         return view
     }
