@@ -173,16 +173,15 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onComplete() {
-                        refreshing = null
                         runOnUiThread {
+                            refreshing = null
                             refreshMenu.setEnabled(true)
                         }
                     }
 
                     override fun onError(t: Throwable) {
-                        refreshing = null
-                        refreshMenu.setEnabled(true)
                         runOnUiThread {
+                            refreshing = null
                             refreshMenu.setEnabled(true)
                             Toast.makeText(this@MainActivity, t.toString(), Toast.LENGTH_SHORT).show()
                         }
