@@ -84,32 +84,37 @@ internal class AllGroupsAdapter(context: Context, private val allGroups: RealmRe
 
     private var headerColor: Int
 
-    private var groupNameToArtifacts: Map<String, Pair<RealmResults<Artifact>, Int/* section index*/>>
+    private val groupNameToArtifacts: MutableMap<String/*group name*/, RealmResults<Artifact>> = mutableMapOf()
 
     init {
         val attrs = context.obtainStyledAttributes(ATTRS)
         headerColor = attrs.getColor(0, Color.WHITE)
         attrs.recycle()
 
-        groupNameToArtifacts = buildSectionMap(allGroups)
+        rebuildSectionMap(allGroups)
 
         allGroups.addChangeListener(RealmChangeListener<RealmResults<Group>> {
-            groupNameToArtifacts = buildSectionMap(allGroups)
+            rebuildSectionMap(allGroups)
             notifyDataSetChanged()
         })
     }
 
-    private fun buildSectionMap(allGroups: RealmResults<Group>): Map<String, Pair<RealmResults<Artifact>, Int>> {
-        val map = HashMap<String, Pair<RealmResults<Artifact>, Int>>(allGroups.size)
+    private fun rebuildSectionMap(allGroups: RealmResults<Group>) {
+        groupNameToArtifacts.values.forEach {
+            it.removeAllChangeListeners()
+        }
+        groupNameToArtifacts.clear()
 
         var sectionIndex = 0
         allGroups.forEach {
             val artifacts: RealmResults<Artifact> = it.artifacts!!
-            map.put(it.groupName!!, artifacts to sectionIndex)
+            val currentSectionIndex = sectionIndex
+            artifacts.addChangeListener(RealmChangeListener<RealmResults<Artifact>> {
+                notifySectionChanged(currentSectionIndex)
+            })
+            groupNameToArtifacts.put(it.groupName!!, artifacts)
             sectionIndex++
         }
-
-        return map
     }
 
     override fun getSectionCount(): Int {
