@@ -20,6 +20,7 @@ import org.reactivestreams.Subscription
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
+import org.zakky.googlerepositorychecker.model.Group
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
 import toothpick.Scope
@@ -62,6 +63,10 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
         val allGroups = realm.where(Artifact::class.java).findAll()
         if (allGroups.isEmpty()) {
             refreshData()
+        }
+
+        if (savedInstanceState == null) {
+            pager.currentItem = 1
         }
     }
 
@@ -120,10 +125,20 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
                         scope.getInstance(Realm::class.java).use {
                             it.executeTransaction {
                                 if (isFirstSave) {
+                                    it.delete(Group::class.java)
                                     it.delete(Artifact::class.java)
                                     isFirstSave = false
                                 }
-                                it.copyToRealmOrUpdate(artifacts)
+                                if (artifacts.isEmpty()) {
+                                    return@executeTransaction
+                                }
+                                val groupName = artifacts[0].groupName!!
+                                var group = it.where(Group::class.java).equalTo(Group::groupName.name, groupName).findFirst()
+                                if (group == null) {
+                                    group = it.createObject(Group::class.java, groupName)
+                                }
+                                artifacts.forEach { it.group = group }
+                                it.insertOrUpdate(artifacts)
                             }
                         }
                     }

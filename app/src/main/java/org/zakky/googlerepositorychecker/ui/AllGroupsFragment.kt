@@ -1,6 +1,5 @@
 package org.zakky.googlerepositorychecker.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -9,13 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import io.realm.OrderedRealmCollection
+import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter
+import com.afollestad.sectionedrecyclerview.SectionedViewHolder
 import io.realm.Realm
-import io.realm.RealmRecyclerViewAdapter
-import io.realm.internal.RealmObjectProxy
+import io.realm.RealmChangeListener
+import io.realm.RealmResults
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
+import org.zakky.googlerepositorychecker.model.Group
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
@@ -49,8 +50,8 @@ class AllGroupsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allGroups = realm.where(Artifact::class.java)
-                .distinct(Artifact::groupName.name).sort(Artifact::groupName.name)
+        val allGroups = realm.where(Group::class.java)
+                .findAllSorted(Group::groupName.name)
 
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
@@ -61,47 +62,78 @@ class AllGroupsFragment : Fragment() {
     }
 }
 
-internal class AllGroupsVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+internal class AllGroupsHeaderVH(headerView: View) : SectionedViewHolder(headerView) {
     val groupName:TextView = itemView.findViewById(android.R.id.text1)
-    val artifactNames:TextView = itemView.findViewById(android.R.id.text2)
 }
 
-internal class AllGroupsAdapter(collection: OrderedRealmCollection<Artifact>)
-    : RealmRecyclerViewAdapter<Artifact, AllGroupsVH>(collection, true) {
+internal class AllGroupsItemVH(itemView: View) : SectionedViewHolder(itemView) {
+    val artifactNames:TextView = itemView.findViewById(android.R.id.text1)
+    val versions:TextView = itemView.findViewById(android.R.id.text2)
+}
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllGroupsVH {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
-        return AllGroupsVH(view)
+internal class AllGroupsAdapter(private val allGroups: RealmResults<Group>)
+    : SectionedRecyclerViewAdapter<SectionedViewHolder>() {
+
+    private var groupNameToArtifacts: Map<String, Pair<RealmResults<Artifact>, Int/* section index*/>>
+
+    init {
+        groupNameToArtifacts = buildSectionMap(allGroups)
+
+        allGroups.addChangeListener(RealmChangeListener<RealmResults<Group>> {
+            groupNameToArtifacts = buildSectionMap(allGroups)
+            notifyDataSetChanged()
+        })
     }
 
-    @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: AllGroupsVH, position: Int) {
-        val item = getItem(position)
+    private fun buildSectionMap(allGroups: RealmResults<Group>): Map<String, Pair<RealmResults<Artifact>, Int>> {
+        val map = HashMap<String, Pair<RealmResults<Artifact>, Int>>(allGroups.size)
 
-        val groupName = item?.groupName
-        if (groupName == null) {
-            holder.groupName.text =  "(null)"
-            holder.artifactNames.text = ""
-            return
+        var sectionIndex = 0
+        allGroups.forEach {
+            val artifacts: RealmResults<Artifact> = it.artifacts!!
+            map.put(it.groupName!!, artifacts to sectionIndex)
+            sectionIndex++
         }
-        holder.groupName.text = groupName
 
-        val objectProxy = item as RealmObjectProxy
-        @Suppress("INACCESSIBLE_TYPE")
-        val realm = objectProxy.`realmGet$proxyState`().`realm$realm` as Realm
+        return map
+    }
 
-        val allArtifacts = realm.where(Artifact::class.java)
-                .findAllSorted(Artifact::artifactName.name)
+    override fun getSectionCount(): Int {
+        return allGroups.size
+    }
 
-        val builder = StringBuilder()
-        val separator = ", "
-        allArtifacts.forEach {
-            builder.append(it.artifactName).append(separator)
+    override fun getItemCount(section: Int): Int {
+        return allGroups[section].artifacts?.size ?: 0
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionedViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            VIEW_TYPE_HEADER -> {
+                val view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
+                AllGroupsHeaderVH(view)
+            }
+            VIEW_TYPE_FOOTER -> throw RuntimeException("we don't use footer")
+            else /* normal item */ -> {
+                val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
+                AllGroupsItemVH(view)
+            }
         }
-        if (builder.isNotEmpty()) {
-            builder.setLength(builder.length - separator.length)
-        }
-        holder.artifactNames.text = builder.toString()
+    }
+
+    override fun onBindHeaderViewHolder(holder: SectionedViewHolder, section: Int, expanded: Boolean) {
+        val headerHolder = holder as AllGroupsHeaderVH
+        headerHolder.groupName.text = allGroups[section].groupName
+    }
+
+    override fun onBindViewHolder(holder: SectionedViewHolder, section: Int, relativePosition: Int, absolutePosition: Int) {
+        val itemHolder = holder as AllGroupsItemVH
+        val artifact: Artifact = allGroups[section]!!.artifacts!![relativePosition]
+        itemHolder.artifactNames.text = artifact.artifactName
+        itemHolder.versions.text = artifact.versions
+    }
+
+    override fun onBindFooterViewHolder(holder: SectionedViewHolder, section: Int) {
+        throw RuntimeException("we don't use footer")
     }
 }

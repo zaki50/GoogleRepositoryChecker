@@ -14,6 +14,7 @@ open class Artifact(
         var artifactName: String? = null,
         @Required
         var versions: String? = null,
+        var group: Group? = null,
         @PrimaryKey
         @Required
         var id: String = "${groupName ?: ""}:${artifactName ?: ""}"
@@ -24,13 +25,13 @@ open class Artifact(
     override fun toString(): String {
         val stringBuilder = StringBuilder("Artifact = ")
         stringBuilder.append(if (RealmObject.isManaged(this)) "managed" else "unmanaged")
-        stringBuilder.append("{groupName:")
+        stringBuilder.append("[{groupName:")
         stringBuilder.append(groupName)
         stringBuilder.append("},{artifactName:")
         stringBuilder.append(artifactName)
         stringBuilder.append("},{versions:")
         stringBuilder.append(versions)
-        stringBuilder.append("}")
+        stringBuilder.append("}]")
         return stringBuilder.toString()
     }
 }
