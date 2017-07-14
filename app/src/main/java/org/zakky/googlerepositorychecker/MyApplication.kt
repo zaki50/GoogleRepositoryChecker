@@ -3,6 +3,9 @@ package org.zakky.googlerepositorychecker
 import android.annotation.SuppressLint
 import android.app.Application
 import io.realm.Realm
+import org.zakky.googlerepositorychecker.kotlinhelper.createObject
+import org.zakky.googlerepositorychecker.kotlinhelper.where
+import org.zakky.googlerepositorychecker.model.FavoritesContainer
 import org.zakky.googlerepositorychecker.toothpick.ApplicationModule
 import org.zakky.googlerepositorychecker.toothpick.FactoryRegistry
 import org.zakky.googlerepositorychecker.toothpick.MemberInjectorRegistry
@@ -21,15 +24,19 @@ open class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Realm.init(this)
-
+        setupRealm()
         setupToothpick()
+        setupInitialData()
     }
 
     override fun onTerminate() {
         super.onTerminate()
 
         Toothpick.closeScope(APP_SCOPE_NAME)
+    }
+
+    private fun setupRealm() {
+        Realm.init(this)
     }
 
     private fun setupToothpick() {
@@ -46,5 +53,15 @@ open class MyApplication : Application() {
         Toothpick.setConfiguration(config)
         FactoryRegistryLocator.setRootRegistry(FactoryRegistry())
         MemberInjectorRegistryLocator.setRootRegistry(MemberInjectorRegistry());
+    }
+
+    private fun setupInitialData() {
+        Toothpick.openScope(APP_SCOPE_NAME).getInstance(Realm::class.java).use {
+            if (it.where(FavoritesContainer::class).findFirst() == null) {
+                it.executeTransaction {
+                    it.createObject(FavoritesContainer::class)
+                }
+            }
+        }
     }
 }

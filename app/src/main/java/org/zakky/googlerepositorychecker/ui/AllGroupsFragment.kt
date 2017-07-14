@@ -17,6 +17,8 @@ import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
+import org.zakky.googlerepositorychecker.kotlinhelper.findAllSorted
+import org.zakky.googlerepositorychecker.kotlinhelper.where
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Group
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
@@ -52,8 +54,8 @@ class AllGroupsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allGroups = realm.where(Group::class.java)
-                .findAllSorted(Group::groupName.name)
+        val allGroups = realm.where(Group::class)
+                .findAllSorted(Group::groupName)
 
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
