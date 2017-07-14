@@ -1,12 +1,8 @@
 package org.zakky.googlerepositorychecker.ui
 
 import android.os.Bundle
-import android.support.annotation.IdRes
-import android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.ViewPager
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -27,13 +23,22 @@ import toothpick.Scope
 import toothpick.Toothpick
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import kotlin.reflect.KFunction0
 
 
-class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
+    companion object {
+        val STATE_CURRENT_FRAGMENT = "current_fragment"
+
+        val fragmentsFactories: Array<KFunction0<Fragment>> = arrayOf(
+                FavoritesFragment.Companion::newInstance,
+                AllGroupsFragment.Companion::newInstance,
+                SettingsFragment.Companion::newInstance
+        )
+
+    }
     private lateinit var scope: Scope
-
-    private val pagerAdapter: MainFragmentStatePagerAdapter by lazy { MainFragmentStatePagerAdapter(supportFragmentManager) }
 
     @Inject
     lateinit var retrofit: Retrofit
@@ -43,6 +48,10 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
 
     private val refreshing: AtomicReference<Subscription?> = AtomicReference()
 
+    private lateinit var navigationMenuIds: IntArray
+
+    private var currentFragmentIndex = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
         Toothpick.inject(this, scope)
@@ -50,24 +59,31 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        pager.apply {
-            adapter = pagerAdapter
-            addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-                override fun onPageSelected(position: Int) {
-                    navigation.selectedItemId = pagerAdapter.menuIdForPageIndex(position)
-                }
-            })
+        setSupportActionBar(toolbar)
+
+        if (savedInstanceState == null) {
+            replaceFragment(currentFragmentIndex)
+        } else {
+            currentFragmentIndex = savedInstanceState.getInt(STATE_CURRENT_FRAGMENT)
         }
 
-        navigation.setOnNavigationItemSelectedListener(this)
+        navigationMenuIds = IntArray(navigation.menu.size()) { index -> navigation.menu.getItem(index).itemId }
+        navigation.selectedItemId = navigationMenuIds[currentFragmentIndex]
+
+        navigation.setOnNavigationItemSelectedListener {
+            val index = navigationMenuIds.indexOf(it.itemId)
+            if (index < 0) {
+                return@setOnNavigationItemSelectedListener false
+            }
+
+            replaceFragment(index)
+
+            return@setOnNavigationItemSelectedListener true
+        }
 
         val allGroups = realm.where(Artifact::class.java).findAll()
         if (allGroups.isEmpty()) {
             refreshData()
-        }
-
-        if (savedInstanceState == null) {
-            pager.currentItem = 1
         }
     }
 
@@ -99,14 +115,18 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val index = pagerAdapter.indexForMenuId(item.itemId)
-        if (index < 0) {
-            return false
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
 
-        pager.setCurrentItem(index, true)
-        return true
+        outState.putInt(STATE_CURRENT_FRAGMENT, currentFragmentIndex)
+    }
+
+    private fun replaceFragment(fragmentIndex: Int) {
+        val fragment = fragmentsFactories[fragmentIndex].invoke()
+        val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        ft.replace(R.id.fragment_container, fragment)
+        ft.commit()
+        currentFragmentIndex = fragmentIndex
     }
 
     private fun refreshData() {
@@ -155,32 +175,5 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
                         }
                     }
                 })
-    }
-}
-
-internal class MainFragmentStatePagerAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
-    val fragmentsList = listOf(
-            FavoritesFragment::class to FavoritesFragment.Companion::newInstance,
-            AllGroupsFragment::class to AllGroupsFragment.Companion::newInstance,
-            SettingsFragment::class to SettingsFragment.Companion::newInstance
-    )
-
-    val navigationMenuIds = listOf(
-            R.id.navigation_favorite,
-            R.id.navigation_all_groups,
-            R.id.navigation_settings
-    )
-
-    override fun getItem(position: Int): Fragment = fragmentsList[position].second.call()
-
-    override fun getCount() = fragmentsList.size
-
-    @IdRes
-    fun menuIdForPageIndex(index: Int): Int {
-        return navigationMenuIds[index]
-    }
-
-    fun indexForMenuId(@IdRes menuItemId: Int): Int {
-        return navigationMenuIds.indexOf(menuItemId)
     }
 }
