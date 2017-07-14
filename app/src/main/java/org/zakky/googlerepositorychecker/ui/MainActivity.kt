@@ -21,7 +21,6 @@ import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryServi
 import retrofit2.Retrofit
 import toothpick.Scope
 import toothpick.Toothpick
-import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import kotlin.reflect.KFunction0
 
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var realm: Realm
 
-    private val refreshing: AtomicReference<Subscription?> = AtomicReference()
+    private var refreshing: Subscription? = null
 
     private lateinit var refreshMenu: MenuItem
 
@@ -82,11 +81,6 @@ class MainActivity : AppCompatActivity() {
 
             return@setOnNavigationItemSelectedListener true
         }
-
-        val allGroups = realm.where(Artifact::class.java).findAll()
-        if (allGroups.isEmpty()) {
-            refreshData()
-        }
     }
 
     override fun onDestroy() {
@@ -98,14 +92,21 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
 
-        refreshing.get()?.cancel()
-        refreshing.set(null)
+        refreshing?.cancel()
+        refreshing = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
         refreshMenu = menu.findItem(R.id.refresh)
+
+        // FIXME we are calling refreshData() here since it must be called after initialization of `refreshMenu`
+        val allGroups = realm.where(Artifact::class.java).findAll()
+        if (allGroups.isEmpty()) {
+            refreshData()
+        }
+
         return true
     }
 
@@ -142,7 +143,10 @@ class MainActivity : AppCompatActivity() {
                     private var isFirstSave = true
 
                     override fun onSubscribe(s: Subscription) {
-                        refreshing.set(s)
+                        runOnUiThread {
+                            refreshing = s
+                            refreshMenu.setEnabled(false)
+                        }
                         s.request(Long.MAX_VALUE)
                     }
 
@@ -169,14 +173,14 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onComplete() {
-                        refreshing.set(null)
+                        refreshing = null
                         runOnUiThread {
                             refreshMenu.setEnabled(true)
                         }
                     }
 
                     override fun onError(t: Throwable) {
-                        refreshing.set(null)
+                        refreshing = null
                         refreshMenu.setEnabled(true)
                         runOnUiThread {
                             refreshMenu.setEnabled(true)
@@ -184,6 +188,5 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 })
-        refreshMenu.setEnabled(false)
     }
 }
