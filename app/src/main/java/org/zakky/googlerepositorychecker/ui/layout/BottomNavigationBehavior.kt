@@ -8,7 +8,8 @@ import android.support.design.widget.Snackbar
 import android.util.AttributeSet
 import android.view.View
 
-
+@Suppress("unused")
+// used from layout
 class BottomNavigationBehavior(context: Context, attrs: AttributeSet) : CoordinatorLayout.Behavior<BottomNavigationView>(context, attrs) {
 
     private var isSnackbarShowing = false
@@ -33,7 +34,7 @@ class BottomNavigationBehavior(context: Context, attrs: AttributeSet) : Coordina
 
     override fun onDependentViewChanged(parent: CoordinatorLayout, child: BottomNavigationView, dependency: View): Boolean {
         if (dependency is AppBarLayout) {
-            val appbar = dependency as AppBarLayout
+            val appbar = dependency
             val bottom = appbar.bottom.toFloat()
             val height = appbar.height.toFloat()
             val hidingRate = (height - bottom) / height
