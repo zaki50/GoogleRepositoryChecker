@@ -1,5 +1,7 @@
 package org.zakky.googlerepositorychecker.ui
 
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -55,7 +57,7 @@ class AllGroupsFragment : Fragment() {
 
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
-        list.adapter = AllGroupsAdapter(allGroups)
+        list.adapter = AllGroupsAdapter(context, allGroups)
         list.setHasFixedSize(true)
 
         return view
@@ -71,12 +73,24 @@ internal class AllGroupsItemVH(itemView: View) : SectionedViewHolder(itemView) {
     val versions:TextView = itemView.findViewById(android.R.id.text2)
 }
 
-internal class AllGroupsAdapter(private val allGroups: RealmResults<Group>)
+internal class AllGroupsAdapter(context: Context, private val allGroups: RealmResults<Group>)
     : SectionedRecyclerViewAdapter<SectionedViewHolder>() {
+
+    companion object {
+        private val ATTRS = intArrayOf(
+                R.attr.colorAccent
+        )
+    }
+
+    private var headerColor: Int
 
     private var groupNameToArtifacts: Map<String, Pair<RealmResults<Artifact>, Int/* section index*/>>
 
     init {
+        val attrs = context.obtainStyledAttributes(ATTRS)
+        headerColor = attrs.getColor(0, Color.WHITE)
+        attrs.recycle()
+
         groupNameToArtifacts = buildSectionMap(allGroups)
 
         allGroups.addChangeListener(RealmChangeListener<RealmResults<Group>> {
@@ -111,6 +125,7 @@ internal class AllGroupsAdapter(private val allGroups: RealmResults<Group>)
         return when (viewType) {
             VIEW_TYPE_HEADER -> {
                 val view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
+                view.setBackgroundColor(headerColor)
                 AllGroupsHeaderVH(view)
             }
             VIEW_TYPE_FOOTER -> throw RuntimeException("we don't use footer")

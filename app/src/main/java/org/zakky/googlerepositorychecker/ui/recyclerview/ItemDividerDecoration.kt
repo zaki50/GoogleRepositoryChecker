@@ -9,7 +9,7 @@ import android.view.View
 
 class ItemDividerDecoration(context: Context) : RecyclerView.ItemDecoration() {
     companion object {
-        val ATTRS = intArrayOf(
+        private val ATTRS = intArrayOf(
                 android.R.attr.listDivider
         )
     }
