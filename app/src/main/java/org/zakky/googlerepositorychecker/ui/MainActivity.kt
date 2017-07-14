@@ -25,6 +25,7 @@ import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryServi
 import retrofit2.Retrofit
 import toothpick.Scope
 import toothpick.Toothpick
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 
@@ -40,7 +41,7 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
     @Inject
     lateinit var realm: Realm
 
-    private var refreshing: Subscription? = null
+    private val refreshing: AtomicReference<Subscription?> = AtomicReference()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         scope = Toothpick.openScope(MyApplication.APP_SCOPE_NAME)
@@ -79,8 +80,8 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
     override fun onPause() {
         super.onPause()
 
-        refreshing?.cancel()
-        refreshing = null
+        refreshing.get()?.cancel()
+        refreshing.set(null)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
                     private var isFirstSave = true
 
                     override fun onSubscribe(s: Subscription) {
-                        refreshing = s
+                        refreshing.set(s)
                         s.request(Long.MAX_VALUE)
                     }
 
@@ -144,12 +145,14 @@ class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
                     }
 
                     override fun onComplete() {
-                        refreshing = null
+                        refreshing.set(null)
                     }
 
                     override fun onError(t: Throwable) {
-                        Toast.makeText(this@MainActivity, t.toString(), Toast.LENGTH_SHORT).show()
-                        refreshing = null
+                        refreshing.set(null)
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, t.toString(), Toast.LENGTH_SHORT).show()
+                        }
                     }
                 })
     }
