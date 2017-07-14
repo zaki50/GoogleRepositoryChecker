@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity() {
 
     private val refreshing: AtomicReference<Subscription?> = AtomicReference()
 
+    private lateinit var refreshMenu: MenuItem
+
     private lateinit var navigationMenuIds: IntArray
 
     private var currentFragmentIndex = 1
@@ -100,8 +102,10 @@ class MainActivity : AppCompatActivity() {
         refreshing.set(null)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
+
+        refreshMenu = menu.findItem(R.id.refresh)
         return true
     }
 
@@ -166,14 +170,20 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onComplete() {
                         refreshing.set(null)
+                        runOnUiThread {
+                            refreshMenu.setEnabled(true)
+                        }
                     }
 
                     override fun onError(t: Throwable) {
                         refreshing.set(null)
+                        refreshMenu.setEnabled(true)
                         runOnUiThread {
+                            refreshMenu.setEnabled(true)
                             Toast.makeText(this@MainActivity, t.toString(), Toast.LENGTH_SHORT).show()
                         }
                     }
                 })
+        refreshMenu.setEnabled(false)
     }
 }
