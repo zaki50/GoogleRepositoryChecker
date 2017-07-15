@@ -4,11 +4,20 @@ package org.zakky.googlerepositorychecker.realm
 
 import io.realm.*
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 
 fun RealmModel.deleteFromRealm() {
     RealmObject.deleteFromRealm(this)
+}
+
+fun <T> Realm.callTransaction(action: Realm.() -> T): T {
+    val ref = AtomicReference<T>()
+    executeTransaction {
+        ref.set(action(it))
+    }
+    return ref.get()
 }
 
 fun <T : RealmModel> Realm.createObject(klass: KClass<T>): T {

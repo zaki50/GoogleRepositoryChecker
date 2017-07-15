@@ -14,8 +14,7 @@ import io.realm.RealmRecyclerViewAdapter
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
-import org.zakky.googlerepositorychecker.model.FavoritesContainer
-import org.zakky.googlerepositorychecker.realm.where
+import org.zakky.googlerepositorychecker.realm.opGetFavoriteArtifacts
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
@@ -46,13 +45,12 @@ class FavoritesFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
 
-        val favorites = realm.where(FavoritesContainer::class)
-                .findFirst().favorites
+        val favoriteArtifacts = realm.opGetFavoriteArtifacts()
 
         val list: RecyclerView = view.findViewById(R.id.list)
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
-        list.adapter = FavoritesAdapter(favorites)
+        list.adapter = FavoritesAdapter(favoriteArtifacts)
         list.setHasFixedSize(true)
 
         return view

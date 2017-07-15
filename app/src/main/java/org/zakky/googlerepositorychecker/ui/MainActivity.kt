@@ -17,10 +17,7 @@ import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Group
-import org.zakky.googlerepositorychecker.realm.createObject
-import org.zakky.googlerepositorychecker.realm.delete
-import org.zakky.googlerepositorychecker.realm.equalTo
-import org.zakky.googlerepositorychecker.realm.where
+import org.zakky.googlerepositorychecker.realm.*
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
 import toothpick.Scope
@@ -107,8 +104,7 @@ class MainActivity : AppCompatActivity() {
         refreshMenu = menu.findItem(R.id.refresh)
 
         // FIXME we are calling refreshData() here since it must be called after initialization of `refreshMenu`
-        val allGroups = realm.where(Artifact::class.java).findAll()
-        if (allGroups.isEmpty()) {
+        if (!realm.opContainsAnyArtifacts()) {
             refreshData()
         }
 
@@ -156,23 +152,13 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onNext(artifacts: List<Artifact>) {
-                        scope.getInstance(Realm::class.java).use {
-                            it.executeTransaction {
+                        scope.getInstance(Realm::class.java).use { realm ->
+                            realm.executeTransaction {
                                 if (isFirstSave) {
-                                    it.delete(Group::class)
-                                    it.delete(Artifact::class)
+                                    realm.opDeleteAllGroupsAndArtifacts()
                                     isFirstSave = false
                                 }
-                                if (artifacts.isEmpty()) {
-                                    return@executeTransaction
-                                }
-                                val groupName = artifacts[0].groupName!!
-                                var group = it.where(Group::class).equalTo(Group::groupName, groupName).findFirst()
-                                if (group == null) {
-                                    group = it.createObject(Group::class, groupName)
-                                }
-                                artifacts.forEach { it.group = group }
-                                it.insertOrUpdate(artifacts)
+                                it.opImportArtifacts(artifacts)
                             }
                         }
                     }
@@ -180,14 +166,14 @@ class MainActivity : AppCompatActivity() {
                     override fun onComplete() {
                         runOnUiThread {
                             refreshing = null
-                            refreshMenu.setEnabled(true)
+                            refreshMenu.isEnabled = true
                         }
                     }
 
                     override fun onError(t: Throwable) {
                         runOnUiThread {
                             refreshing = null
-                            refreshMenu.setEnabled(true)
+                            refreshMenu.isEnabled = true
                             Toast.makeText(this@MainActivity, t.toString(), Toast.LENGTH_SHORT).show()
                         }
                     }

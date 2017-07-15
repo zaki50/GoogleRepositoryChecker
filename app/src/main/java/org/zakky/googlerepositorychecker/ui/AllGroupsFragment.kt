@@ -20,9 +20,8 @@ import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Group
-import org.zakky.googlerepositorychecker.realm.findAllSorted
+import org.zakky.googlerepositorychecker.realm.opGetAllGroupsOrderedByName
 import org.zakky.googlerepositorychecker.realm.opToggleFavorite
-import org.zakky.googlerepositorychecker.realm.where
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
@@ -60,8 +59,7 @@ class AllGroupsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allGroups = realm.where(Group::class)
-                .findAllSorted(Group::groupName)
+        val allGroups = realm.opGetAllGroupsOrderedByName()
 
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
