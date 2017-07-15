@@ -9,18 +9,24 @@ import io.realm.annotations.Required
 @RealmClass
 open class Artifact(
         @Required
-        var groupName: String? = null,
+        var groupName: String = "",
         @Required
-        var artifactName: String? = null,
+        var artifactName: String = "",
         @Required
-        var versions: String? = null,
+        var versions: String = "",
         var group: Group? = null,
         @PrimaryKey
         @Required
-        var id: String = "${groupName ?: ""}:${artifactName ?: ""}"
+        var id: String = Artifact.toId(groupName, artifactName)
 ) : RealmModel {
+    companion object {
+        fun toId(groupName: String, artifactName: String): String {
+            return "$groupName:$artifactName"
+        }
+    }
+
     val versionList: List<String>
-        get() = versions!!.split(",")
+        get() = versions.split(",")
 
     override fun toString(): String {
         val stringBuilder = StringBuilder("Artifact = ")

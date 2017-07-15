@@ -3,9 +3,9 @@ package org.zakky.googlerepositorychecker
 import android.annotation.SuppressLint
 import android.app.Application
 import io.realm.Realm
-import org.zakky.googlerepositorychecker.kotlinhelper.createObject
-import org.zakky.googlerepositorychecker.kotlinhelper.where
 import org.zakky.googlerepositorychecker.model.FavoritesContainer
+import org.zakky.googlerepositorychecker.realm.createObject
+import org.zakky.googlerepositorychecker.realm.where
 import org.zakky.googlerepositorychecker.toothpick.ApplicationModule
 import org.zakky.googlerepositorychecker.toothpick.FactoryRegistry
 import org.zakky.googlerepositorychecker.toothpick.MemberInjectorRegistry

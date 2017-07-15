@@ -7,7 +7,7 @@ import io.realm.annotations.RealmClass
 
 @RealmClass
 open class FavoritesContainer(
-        var favorites: RealmList<Favorite> = RealmList()
+        var favorites: RealmList<Artifact> = RealmList()
 ) : RealmModel {
     override fun toString(): String {
         val stringBuilder = StringBuilder("FavoritesContainer = ")

@@ -1,11 +1,15 @@
 @file:JvmName("RealmUtils")
 
-package org.zakky.googlerepositorychecker.kotlinhelper
+package org.zakky.googlerepositorychecker.realm
 
 import io.realm.*
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
+
+fun RealmModel.deleteFromRealm() {
+    RealmObject.deleteFromRealm(this)
+}
 
 fun <T : RealmModel> Realm.createObject(klass: KClass<T>): T {
     return this.createObject(klass.java)
@@ -23,52 +27,52 @@ fun <T : RealmModel> Realm.where(klass: KClass<T>): RealmQuery<T> {
     return this.where(klass.java)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Boolean?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Boolean?>,
                                            value: Boolean): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Long?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Long?>,
                                            value: Long): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Int?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Int?>,
                                            value: Int): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Short?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Short?>,
                                            value: Short): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Byte?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Byte?>,
                                            value: Byte): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Date?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Date?>,
                                            value: Date): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, ByteArray?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out ByteArray?>,
                                            value: ByteArray): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Double?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Double?>,
                                            value: Double): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, Float?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Float?>,
                                            value: Float): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, String?>,
+fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out String?>,
                                            value: String, case: Case = Case.SENSITIVE): RealmQuery<T> {
     return this.equalTo(property.name, value, case)
 }
@@ -79,7 +83,6 @@ fun <T : RealmModel> RealmQuery<T>.findAllSorted(property: KMutableProperty1<T, 
 }
 
 fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(property: KMutableProperty1<T, out Any?>,
-                                                 sortOrder: Sort = Sort.ASCENDING): RealmResults<T> {
+                                                      sortOrder: Sort = Sort.ASCENDING): RealmResults<T> {
     return this.findAllSortedAsync(property.name, sortOrder)
 }
-

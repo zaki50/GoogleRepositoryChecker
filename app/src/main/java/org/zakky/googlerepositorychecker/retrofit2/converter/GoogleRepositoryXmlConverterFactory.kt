@@ -7,7 +7,7 @@ import java.lang.reflect.Type
 
 class GoogleRepositoryXmlConverterFactory : Converter.Factory() {
     companion object {
-        fun create() : GoogleRepositoryXmlConverterFactory {
+        fun create(): GoogleRepositoryXmlConverterFactory {
             return GoogleRepositoryXmlConverterFactory()
         }
     }

@@ -15,12 +15,12 @@ import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
-import org.zakky.googlerepositorychecker.kotlinhelper.createObject
-import org.zakky.googlerepositorychecker.kotlinhelper.delete
-import org.zakky.googlerepositorychecker.kotlinhelper.equalTo
-import org.zakky.googlerepositorychecker.kotlinhelper.where
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Group
+import org.zakky.googlerepositorychecker.realm.createObject
+import org.zakky.googlerepositorychecker.realm.delete
+import org.zakky.googlerepositorychecker.realm.equalTo
+import org.zakky.googlerepositorychecker.realm.where
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
 import toothpick.Scope
