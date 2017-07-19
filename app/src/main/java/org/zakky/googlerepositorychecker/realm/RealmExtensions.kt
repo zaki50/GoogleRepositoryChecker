@@ -12,7 +12,7 @@ fun RealmModel.deleteFromRealm() {
     RealmObject.deleteFromRealm(this)
 }
 
-fun <T> Realm.callTransaction(action: Realm.() -> T): T {
+inline fun <T> Realm.callTransaction(crossinline action: Realm.() -> T): T {
     val ref = AtomicReference<T>()
     executeTransaction {
         ref.set(action(it))
