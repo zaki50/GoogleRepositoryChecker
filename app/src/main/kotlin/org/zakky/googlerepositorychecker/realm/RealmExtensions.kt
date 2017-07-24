@@ -414,10 +414,10 @@ fun <T : RealmModel> RealmQuery<T>.like(property: KMutableProperty1<T, out Strin
 
 // beginGroup, endGroup
 
-fun <T : RealmModel> RealmQuery<T>.group(body: RealmQuery<T>.() -> Unit) {
+fun <T : RealmModel> RealmQuery<T>.group(body: RealmQuery<T>.() -> Unit): RealmQuery<T> {
     beginGroup()
     body()
-    endGroup()
+    return endGroup()
 }
 
 // isEmpty
