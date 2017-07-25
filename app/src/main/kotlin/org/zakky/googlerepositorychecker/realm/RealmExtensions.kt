@@ -51,52 +51,52 @@ fun <T : RealmModel> RealmQuery<T>.isNotNull(property: KMutableProperty1<T, *>):
 // equalTo
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out String?>,
-                                           value: String, case: Case = Case.SENSITIVE): RealmQuery<T> {
+                                           value: String?, case: Case = Case.SENSITIVE): RealmQuery<T> {
     return this.equalTo(property.name, value, case)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Byte?>,
-                                           value: Byte): RealmQuery<T> {
+                                           value: Byte?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out ByteArray?>,
-                                           value: ByteArray): RealmQuery<T> {
+                                           value: ByteArray?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Short?>,
-                                           value: Short): RealmQuery<T> {
+                                           value: Short?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Int?>,
-                                           value: Int): RealmQuery<T> {
+                                           value: Int?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Long?>,
-                                           value: Long): RealmQuery<T> {
+                                           value: Long?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Double?>,
-                                           value: Double): RealmQuery<T> {
+                                           value: Double?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Float?>,
-                                           value: Float): RealmQuery<T> {
+                                           value: Float?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Boolean?>,
-                                           value: Boolean): RealmQuery<T> {
+                                           value: Boolean?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Date?>,
-                                           value: Date): RealmQuery<T> {
+                                           value: Date?): RealmQuery<T> {
     return this.equalTo(property.name, value)
 }
 
@@ -150,52 +150,52 @@ fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Date?
 // notEqualTo
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out String?>,
-                                              value: String, case: Case = Case.SENSITIVE): RealmQuery<T> {
+                                              value: String?, case: Case = Case.SENSITIVE): RealmQuery<T> {
     return this.notEqualTo(property.name, value, case)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Byte?>,
-                                              value: Byte): RealmQuery<T> {
+                                              value: Byte?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out ByteArray?>,
-                                              value: ByteArray): RealmQuery<T> {
+                                              value: ByteArray?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Short?>,
-                                              value: Short): RealmQuery<T> {
+                                              value: Short?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Int?>,
-                                              value: Int): RealmQuery<T> {
+                                              value: Int?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Long?>,
-                                              value: Long): RealmQuery<T> {
+                                              value: Long?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Double?>,
-                                              value: Double): RealmQuery<T> {
+                                              value: Double?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Float?>,
-                                              value: Float): RealmQuery<T> {
+                                              value: Float?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Boolean?>,
-                                              value: Boolean): RealmQuery<T> {
+                                              value: Boolean?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
 fun <T : RealmModel> RealmQuery<T>.notEqualTo(property: KMutableProperty1<T, out Date?>,
-                                              value: Date): RealmQuery<T> {
+                                              value: Date?): RealmQuery<T> {
     return this.notEqualTo(property.name, value)
 }
 
@@ -515,6 +515,13 @@ fun <T : RealmModel> RealmQuery<T>.findAllSorted(field: KMutableProperty1<T, out
     return this.findAllSorted(field.name, sortOrder)
 }
 
+fun <T : RealmModel> RealmQuery<T>.findAllSorted(field1: KMutableProperty1<T, out Any?>,
+                                                 sortOrder1: Sort = Sort.ASCENDING,
+                                                 field2: KMutableProperty1<T, out Any?>,
+                                                 sortOrder2: Sort = Sort.ASCENDING): RealmResults<T> {
+    return this.findAllSorted(field1.name, sortOrder1, field2.name, sortOrder2)
+}
+
 fun <T : RealmModel> RealmQuery<T>.findAllSorted(fields: Array<KMutableProperty1<T, out Any?>>,
                                                  sortOrders: Array<Sort>): RealmResults<T> {
     return this.findAllSorted(fields.map {it.name}.toTypedArray(), sortOrders)
@@ -525,6 +532,13 @@ fun <T : RealmModel> RealmQuery<T>.findAllSorted(fields: Array<KMutableProperty1
 fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(property: KMutableProperty1<T, out Any?>,
                                                       sortOrder: Sort = Sort.ASCENDING): RealmResults<T> {
     return this.findAllSortedAsync(property.name, sortOrder)
+}
+
+fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(field1: KMutableProperty1<T, out Any?>,
+                                                      sortOrder1: Sort = Sort.ASCENDING,
+                                                      field2: KMutableProperty1<T, out Any?>,
+                                                      sortOrder2: Sort = Sort.ASCENDING): RealmResults<T> {
+    return this.findAllSortedAsync(field1.name, sortOrder1, field2.name, sortOrder2)
 }
 
 fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(fields: Array<KMutableProperty1<T, out Any?>>,
