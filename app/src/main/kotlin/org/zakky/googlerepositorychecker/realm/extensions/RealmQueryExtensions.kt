@@ -70,47 +70,47 @@ fun <T : RealmModel> RealmQuery<T>.equalTo(property: KMutableProperty1<T, out Da
 
 // in
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out String?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out String?>,
                                         value: Array<String?>, casing: Case = Case.SENSITIVE): RealmQuery<T> {
     return this.`in`(property.name, value, casing)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Byte?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Byte?>,
                                         value: Array<Byte?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Short?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Short?>,
                                         value: Array<Short?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Int?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Int?>,
                                         value: Array<Int?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Long?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Long?>,
                                         value: Array<Long?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Double?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Double?>,
                                         value: Array<Double?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Float?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Float?>,
                                         value: Array<Float?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Boolean?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Boolean?>,
                                         value: Array<Boolean?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }
 
-fun <T : RealmModel> RealmQuery<T>.`in`(property: KMutableProperty1<T, out Date?>,
+fun <T : RealmModel> RealmQuery<T>.oneOf(property: KMutableProperty1<T, out Date?>,
                                         value: Array<Date?>): RealmQuery<T> {
     return this.`in`(property.name, value)
 }

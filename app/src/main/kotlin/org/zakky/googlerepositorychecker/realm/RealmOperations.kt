@@ -49,7 +49,7 @@ fun Realm.opImportArtifacts(unmanagedArtifacts: List<Artifact>) {
     insertOrUpdate(unmanagedArtifacts)
     unmanagedArtifacts.forEach { it.group = null }
 
-    where<Favorite>().`in`(Favorite::artifactId, artifactIds)
+    where<Favorite>().oneOf(Favorite::artifactId, artifactIds)
             .findAll()
 }
 
