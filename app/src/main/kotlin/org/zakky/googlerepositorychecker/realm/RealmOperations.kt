@@ -8,6 +8,7 @@ import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Favorite
 import org.zakky.googlerepositorychecker.model.FavoritesContainer
 import org.zakky.googlerepositorychecker.model.Group
+import org.zakky.googlerepositorychecker.realm.extensions.*
 
 fun Realm.opCreateInitialDataIfNeeded() {
     if (where<FavoritesContainer>().findFirst() != null) {

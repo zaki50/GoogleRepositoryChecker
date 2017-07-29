@@ -18,6 +18,7 @@ import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Favorite
 import org.zakky.googlerepositorychecker.realm.*
+import org.zakky.googlerepositorychecker.realm.extensions.*
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject

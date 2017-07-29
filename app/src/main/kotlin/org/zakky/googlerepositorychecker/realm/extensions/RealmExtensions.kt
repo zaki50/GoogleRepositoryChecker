@@ -1,7 +1,7 @@
 @file:JvmName("RealmUtils")
 @file:Suppress("unused")
 
-package org.zakky.googlerepositorychecker.realm
+package org.zakky.googlerepositorychecker.realm.extensions
 
 import io.realm.*
 import java.util.*
