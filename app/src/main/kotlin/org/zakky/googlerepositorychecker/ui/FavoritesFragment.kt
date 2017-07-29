@@ -1,6 +1,7 @@
 package org.zakky.googlerepositorychecker.ui
 
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -8,13 +9,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import io.realm.Realm
 import io.realm.RealmList
 import io.realm.RealmRecyclerViewAdapter
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
-import org.zakky.googlerepositorychecker.realm.opGetFavoriteArtifacts
+import org.zakky.googlerepositorychecker.model.Favorite
+import org.zakky.googlerepositorychecker.realm.*
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
@@ -55,26 +58,43 @@ class FavoritesFragment : Fragment() {
 
         return view
     }
-}
 
-internal class FavoritesItemVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val artifactId: TextView = itemView.findViewById(android.R.id.text1)
-    val versions: TextView = itemView.findViewById(android.R.id.text2)
-}
-
-internal class FavoritesAdapter(favorites: RealmList<Artifact>)
-    : RealmRecyclerViewAdapter<Artifact, FavoritesItemVH>(favorites, true) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoritesItemVH {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
-        return FavoritesItemVH(view)
+    internal class FavoritesItemVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val artifactId: TextView = itemView.findViewById(android.R.id.text1)
+        val versions: TextView = itemView.findViewById(android.R.id.text2)
     }
 
-    override fun onBindViewHolder(holder: FavoritesItemVH, position: Int) {
-        val item = getItem(position)
+    internal inner class FavoritesAdapter(favorites: RealmList<Artifact>)
+        : RealmRecyclerViewAdapter<Artifact, FavoritesItemVH>(favorites, true) {
 
-        holder.artifactId.text = item?.id
-        holder.versions.text = item?.versions
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoritesItemVH {
+            val inflater = LayoutInflater.from(parent.context)
+            val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
+            return FavoritesItemVH(view)
+        }
+
+        override fun onBindViewHolder(holder: FavoritesItemVH, position: Int) {
+            val artifact = getItem(position)
+
+            holder.artifactId.text = artifact!!.id
+            holder.versions.text = artifact.versions
+
+            val artifactId = Artifact.toId(artifact.groupName, artifact.artifactName)
+            val favorite = realm.where<Favorite>().equalTo(Favorite::artifactId, artifactId).findFirst()
+            val createdAt = favorite?.createdAt
+            holder.itemView.setOnClickListener {
+                realm.executeTransaction { r ->
+                    r.opUnfavorite(artifactId)
+                    Toast.makeText(holder.itemView.context, "unfavorited", Toast.LENGTH_SHORT).show()
+                }
+                Snackbar.make(view!!, "undo", Snackbar.LENGTH_INDEFINITE)
+                        .setAction(getString(R.string.action_undo)) {
+                            realm.executeTransaction {
+                                realm.opFavorite(artifactId, createdAt)
+                            }
+                        }
+                        .show()
+            }
+        }
     }
 }

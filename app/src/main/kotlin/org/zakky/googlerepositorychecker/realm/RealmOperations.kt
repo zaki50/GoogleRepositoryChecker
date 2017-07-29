@@ -77,25 +77,27 @@ fun Realm.opToggleFavorite(artifactId: String): Boolean {
     }
 }
 
-fun Realm.opFavorite(artifactId: String) {
-    val existingFavorite = where<Favorite>()
-            .equalTo(Favorite::artifactId, artifactId).findFirst()
-    val artifact = where<Artifact>()
-            .equalTo(Artifact::id, artifactId).findFirst()
-    if (artifact == null) {
-        // artifact does not exist. Remove `Favorite` and return
-        existingFavorite?.let {
-            RealmObject.deleteFromRealm(it)
-        }
-        return
+fun Realm.opFavorite(artifactId: String, createdAt: Long? = null) {
+    val artifact: Artifact = where<Artifact>()
+            .equalTo(Artifact::id, artifactId).findFirst() ?: return
+
+    val favorite = where<Favorite>().equalTo(Favorite::artifactId, artifactId).findFirst()
+            ?: createObject<Favorite>(artifactId)
+    if (createdAt != null) {
+        favorite.createdAt = createdAt
     }
 
     val container = where<FavoritesContainer>().findFirst()!!
-    if (existingFavorite == null) {
-        createObject<Favorite>(artifactId)
-        container.favorites.add(0, artifact)
-    } else {
-        existingFavorite.deleteFromRealm()
-        container.favorites.remove(artifact)
-    }
+    container.favorites.add(0, artifact)
+}
+
+fun Realm.opUnfavorite(artifactId: String) {
+    val existingFavorite: Favorite? = where<Favorite>()
+            .equalTo(Favorite::artifactId, artifactId).findFirst()
+    val artifact: Artifact? = where<Artifact>()
+            .equalTo(Artifact::id, artifactId).findFirst()
+
+    val container = where<FavoritesContainer>().findFirst()!!
+    existingFavorite?.deleteFromRealm()
+    container.favorites.remove(artifact)
 }
