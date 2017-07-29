@@ -439,29 +439,29 @@ fun <T : RealmModel> RealmQuery<T>.average(property: KMutableProperty1<T, out Nu
 // min
 
 fun <T : RealmModel> RealmQuery<T>.min(property: KMutableProperty1<T, out Number?>): Long? {
-    return this.min(property.name).toLong()
+    return this.min(property.name)?.toLong()
 }
 
 fun <T : RealmModel> RealmQuery<T>.min(property: KMutableProperty1<T, out Double?>): Double? {
-    return this.min(property.name).toDouble()
+    return this.min(property.name)?.toDouble()
 }
 
 fun <T : RealmModel> RealmQuery<T>.min(property: KMutableProperty1<T, out Float?>): Float? {
-    return this.min(property.name).toFloat()
+    return this.min(property.name)?.toFloat()
 }
 
 // max
 
 fun <T : RealmModel> RealmQuery<T>.max(property: KMutableProperty1<T, out Number?>): Long? {
-    return this.max(property.name).toLong()
+    return this.max(property.name)?.toLong()
 }
 
 fun <T : RealmModel> RealmQuery<T>.max(property: KMutableProperty1<T, out Double?>): Double? {
-    return this.max(property.name).toDouble()
+    return this.max(property.name)?.toDouble()
 }
 
 fun <T : RealmModel> RealmQuery<T>.max(property: KMutableProperty1<T, out Float?>): Float? {
-    return this.max(property.name).toFloat()
+    return this.max(property.name)?.toFloat()
 }
 
 // minimumDate
