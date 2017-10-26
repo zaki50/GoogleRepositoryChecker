@@ -23,3 +23,7 @@ gen
 
 # for Crashlytics
 crashlytics.properties
+
+# for bitrise
+.bitrise.secrets.yml
+gradle.deps
