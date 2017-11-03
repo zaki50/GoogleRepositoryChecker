@@ -29,6 +29,8 @@ task clean(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.2.1'
+    gradleVersion = '4.3'
+    //noinspection GroovyAccessibility
+    distributionType = 'all'
 }
 
