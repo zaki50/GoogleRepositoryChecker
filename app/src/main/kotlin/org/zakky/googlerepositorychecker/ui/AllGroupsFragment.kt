@@ -28,9 +28,7 @@ import javax.inject.Inject
 
 class AllGroupsFragment : Fragment() {
     companion object {
-        fun newInstance(): AllGroupsFragment {
-            return AllGroupsFragment()
-        }
+        fun newInstance() = AllGroupsFragment()
 
         private val ATTRS = intArrayOf(
                 R.attr.colorAccent
@@ -61,6 +59,7 @@ class AllGroupsFragment : Fragment() {
 
         val allGroups = realm.opGetAllGroupsOrderedByName()
 
+        val context = context!!
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
         list.adapter = AllGroupsAdapter(context, allGroups)
@@ -116,13 +115,9 @@ class AllGroupsFragment : Fragment() {
             }
         }
 
-        override fun getSectionCount(): Int {
-            return allGroups.size
-        }
+        override fun getSectionCount() = allGroups.size
 
-        override fun getItemCount(section: Int): Int {
-            return allGroups[section].artifacts?.size ?: 0
-        }
+        override fun getItemCount(section: Int) = allGroups[section].artifacts?.size ?: 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionedViewHolder {
             val inflater = LayoutInflater.from(parent.context)

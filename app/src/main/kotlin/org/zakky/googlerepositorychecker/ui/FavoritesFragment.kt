@@ -25,9 +25,7 @@ import javax.inject.Inject
 
 class FavoritesFragment : Fragment() {
     companion object {
-        fun newInstance(): FavoritesFragment {
-            return FavoritesFragment()
-        }
+        fun newInstance() = FavoritesFragment()
     }
 
     @Inject
@@ -51,6 +49,7 @@ class FavoritesFragment : Fragment() {
 
         val favoriteArtifacts = realm.opGetFavoriteArtifacts()
 
+        val context = context!!
         val list: RecyclerView = view.findViewById(R.id.list)
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
