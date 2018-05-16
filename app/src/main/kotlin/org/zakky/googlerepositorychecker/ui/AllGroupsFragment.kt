@@ -117,7 +117,7 @@ class AllGroupsFragment : Fragment() {
 
         override fun getSectionCount() = allGroups.size
 
-        override fun getItemCount(section: Int) = allGroups[section].artifacts?.size ?: 0
+        override fun getItemCount(section: Int) = allGroups[section]?.artifacts?.size ?: 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionedViewHolder {
             val inflater = LayoutInflater.from(parent.context)
@@ -137,12 +137,12 @@ class AllGroupsFragment : Fragment() {
 
         override fun onBindHeaderViewHolder(holder: SectionedViewHolder, section: Int, expanded: Boolean) {
             val headerHolder = holder as AllGroupsHeaderVH
-            headerHolder.groupName.text = allGroups[section].groupName
+            headerHolder.groupName.text = allGroups[section]?.groupName
         }
 
         override fun onBindViewHolder(holder: SectionedViewHolder, section: Int, relativePosition: Int, absolutePosition: Int) {
             val itemHolder = holder as AllGroupsItemVH
-            val artifact: Artifact = allGroups[section]!!.artifacts!![relativePosition]
+            val artifact: Artifact = allGroups[section]!!.artifacts!![relativePosition]!!
             itemHolder.artifactName.text = artifact.artifactName
             itemHolder.versions.text = artifact.versions
 
