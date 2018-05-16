@@ -5,7 +5,6 @@ package org.zakky.googlerepositorychecker.realm.extensions
 
 import io.realm.*
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KMutableProperty1
 
 fun <T : RealmModel> RealmQuery<T>.isNull(property: KMutableProperty1<T, *>): RealmQuery<T> {
@@ -400,22 +399,6 @@ fun <T : RealmModel> RealmQuery<T>.isNotEmpty(property: KMutableProperty1<T, *>)
     return this.isNotEmpty(property.name)
 }
 
-// distinct
-
-fun <T : RealmModel> RealmQuery<T>.distinct(property: KMutableProperty1<T, *>): RealmResults<T> {
-    return this.distinct(property.name)
-}
-
-fun <T : RealmModel> RealmQuery<T>.distinct(firstField: KMutableProperty1<T, *>, vararg remainingFields: KMutableProperty1<T, *>): RealmResults<T> {
-    return this.distinct(firstField.name, *remainingFields.map { it.name }.toTypedArray())
-}
-
-// distinctAsync
-
-fun <T : RealmModel> RealmQuery<T>.distinctAsync(property: KMutableProperty1<T, *>): RealmResults<T> {
-    return this.distinctAsync(property.name)
-}
-
 // sum
 
 fun <T : RealmModel> RealmQuery<T>.sum(property: KMutableProperty1<T, out Number?>): Long {
@@ -474,42 +457,4 @@ fun <T : RealmModel> RealmQuery<T>.minimumDate(property: KMutableProperty1<T, ou
 
 fun <T : RealmModel> RealmQuery<T>.maximumDate(property: KMutableProperty1<T, out Date?>): Date? {
     return this.maximumDate(property.name)
-}
-
-// findAllSorted
-
-fun <T : RealmModel> RealmQuery<T>.findAllSorted(field: KMutableProperty1<T, out Any?>,
-                                                 sortOrder: Sort = Sort.ASCENDING): RealmResults<T> {
-    return this.findAllSorted(field.name, sortOrder)
-}
-
-fun <T : RealmModel> RealmQuery<T>.findAllSorted(field1: KMutableProperty1<T, out Any?>,
-                                                 sortOrder1: Sort = Sort.ASCENDING,
-                                                 field2: KMutableProperty1<T, out Any?>,
-                                                 sortOrder2: Sort = Sort.ASCENDING): RealmResults<T> {
-    return this.findAllSorted(field1.name, sortOrder1, field2.name, sortOrder2)
-}
-
-fun <T : RealmModel> RealmQuery<T>.findAllSorted(fields: Array<KMutableProperty1<T, out Any?>>,
-                                                 sortOrders: Array<Sort>): RealmResults<T> {
-    return this.findAllSorted(fields.map {it.name}.toTypedArray(), sortOrders)
-}
-
-// findAllSortedAsync
-
-fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(property: KMutableProperty1<T, out Any?>,
-                                                      sortOrder: Sort = Sort.ASCENDING): RealmResults<T> {
-    return this.findAllSortedAsync(property.name, sortOrder)
-}
-
-fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(field1: KMutableProperty1<T, out Any?>,
-                                                      sortOrder1: Sort = Sort.ASCENDING,
-                                                      field2: KMutableProperty1<T, out Any?>,
-                                                      sortOrder2: Sort = Sort.ASCENDING): RealmResults<T> {
-    return this.findAllSortedAsync(field1.name, sortOrder1, field2.name, sortOrder2)
-}
-
-fun <T : RealmModel> RealmQuery<T>.findAllSortedAsync(fields: Array<KMutableProperty1<T, out Any?>>,
-                                                 sortOrders: Array<Sort>): RealmResults<T> {
-    return this.findAllSortedAsync(fields.map {it.name}.toTypedArray(), sortOrders)
 }

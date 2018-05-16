@@ -22,7 +22,7 @@ fun Realm.opContainsAnyArtifacts(): Boolean {
     return !allArtifacts.isEmpty()
 }
 
-fun Realm.opGetAllGroupsOrderedByName() = where<Group>().findAllSorted(Group::groupName)
+fun Realm.opGetAllGroupsOrderedByName() = where<Group>().sort(Group::groupName.name).findAll()!!
 
 fun Realm.opGetFavoriteArtifacts() = where<FavoritesContainer>()
         .findFirst()!!.favorites
@@ -39,7 +39,7 @@ fun Realm.opImportArtifacts(unmanagedArtifacts: List<Artifact>) {
     val groupName = unmanagedArtifacts[0].groupName
     var group = where<Group>().equalTo(Group::groupName, groupName).findFirst()
     if (group == null) {
-        group = createObject<Group>(groupName)
+        group = createObject(groupName)
     }
     val artifactIds = arrayOfNulls<String>(unmanagedArtifacts.size)
     unmanagedArtifacts.forEachIndexed { index: Int, artifact ->
@@ -83,7 +83,7 @@ fun Realm.opFavorite(artifactId: String, createdAt: Long? = null) {
             .equalTo(Artifact::id, artifactId).findFirst() ?: return
 
     val favorite = where<Favorite>().equalTo(Favorite::artifactId, artifactId).findFirst()
-            ?: createObject<Favorite>(artifactId)
+            ?: createObject(artifactId)
     if (createdAt != null) {
         favorite.createdAt = createdAt
     }
