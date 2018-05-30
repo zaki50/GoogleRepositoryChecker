@@ -80,7 +80,7 @@ class AllGroupsFragment : Fragment() {
     inner class AllGroupsAdapter(context: Context, private val allGroups: RealmResults<Group>)
         : SectionedRecyclerViewAdapter<SectionedViewHolder>() {
 
-        private var headerColor: Int
+        private val headerColor: Int
 
         private val groupNameToArtifacts: MutableMap<String/*group name*/, RealmResults<Artifact>> = mutableMapOf()
 

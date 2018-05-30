@@ -16,7 +16,6 @@ import org.reactivestreams.Subscription
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
-import org.zakky.googlerepositorychecker.model.Group
 import org.zakky.googlerepositorychecker.realm.*
 import org.zakky.googlerepositorychecker.retrofit2.service.GoogleRepositoryService
 import retrofit2.Retrofit
@@ -29,7 +28,7 @@ import kotlin.reflect.KFunction0
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        val STATE_CURRENT_FRAGMENT = "current_fragment"
+        const val STATE_CURRENT_FRAGMENT = "current_fragment"
 
         val fragmentsFactories: Array<KFunction0<Fragment>> = arrayOf(
                 FavoritesFragment.Companion::newInstance,
@@ -146,7 +145,7 @@ class MainActivity : AppCompatActivity() {
                     override fun onSubscribe(s: Subscription) {
                         runOnUiThread {
                             refreshing = s
-                            refreshMenu.setEnabled(false)
+                            refreshMenu.isEnabled = false
                         }
                         s.request(Long.MAX_VALUE)
                     }
