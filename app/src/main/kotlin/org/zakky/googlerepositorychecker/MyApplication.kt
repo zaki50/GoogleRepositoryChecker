@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import io.realm.Realm
 import org.zakky.googlerepositorychecker.realm.opCreateInitialDataIfNeeded
-import org.zakky.googlerepositorychecker.realm.opResetViewState
 import org.zakky.googlerepositorychecker.toothpick.ApplicationModule
 import org.zakky.googlerepositorychecker.toothpick.FactoryRegistry
 import org.zakky.googlerepositorychecker.toothpick.MemberInjectorRegistry
@@ -25,7 +24,7 @@ open class MyApplication : Application() {
 
         setupRealm()
         setupToothpick()
-        prepareRealmData()
+        setupInitialData()
     }
 
     override fun onTerminate() {
@@ -54,11 +53,10 @@ open class MyApplication : Application() {
         MemberInjectorRegistryLocator.setRootRegistry(MemberInjectorRegistry())
     }
 
-    private fun prepareRealmData() {
+    private fun setupInitialData() {
         Toothpick.openScope(APP_SCOPE_NAME).getInstance(Realm::class.java).use { realm ->
             realm.executeTransaction {
                 it.opCreateInitialDataIfNeeded()
-                it.opResetViewState()
             }
         }
     }

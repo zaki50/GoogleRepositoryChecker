@@ -18,32 +18,18 @@ fun Realm.opCreateInitialDataIfNeeded() {
     createObject<FavoritesContainer>()
 }
 
-fun Realm.opResetViewState() {
-    opGetAllArtifacts(false).forEach {
-        it.showInAll = true
-    }
-}
-
 fun Realm.opContainsAnyArtifacts(): Boolean {
     val allArtifacts = where<Artifact>().findAll()
     return !allArtifacts.isEmpty()
 }
 
-fun Realm.opGetAllArtifacts(onlyShowInAll: Boolean) = where<Artifact>().apply {
-            if (onlyShowInAll) {
-                equalTo(Artifact::showInAll, true)
+fun Realm.opGetAllArtifactsWithSort(queryString: String) = where<Artifact>().apply {
+            if (!queryString.isEmpty()) {
+                contains(Artifact::groupName, queryString).or().contains(Artifact::artifactName, queryString)
             }
         }
         .sort(Artifact::groupName, Sort.ASCENDING, Artifact::artifactName, Sort.ASCENDING)
         .findAll()!!
-
-fun Realm.opUpdateQueryAsync(queryString: String) = executeTransactionAsync {
-    it.opGetAllArtifacts(false).forEach {
-        it.showInAll = it.groupName.contains(queryString) || it.artifactName.contains(queryString)
-    }
-}
-
-
 
 fun Realm.opGetFavoriteArtifacts() = where<FavoritesContainer>()
         .findFirst()!!.favorites

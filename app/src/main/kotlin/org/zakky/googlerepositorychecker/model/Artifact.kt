@@ -17,8 +17,7 @@ open class Artifact(
         var group: Group? = null,
         @PrimaryKey
         @Required
-        var id: String = Artifact.toId(groupName, artifactName),
-        var showInAll: Boolean = true
+        var id: String = Artifact.toId(groupName, artifactName)
 ) : RealmModel {
     companion object {
         fun toId(groupName: String, artifactName: String): String {

@@ -17,13 +17,11 @@ import io.realm.RealmResults
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
-import org.zakky.googlerepositorychecker.realm.opGetAllArtifacts
+import org.zakky.googlerepositorychecker.realm.opGetAllArtifactsWithSort
 import org.zakky.googlerepositorychecker.realm.opToggleFavorite
-import org.zakky.googlerepositorychecker.realm.opUpdateQueryAsync
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
-import kotlin.Comparator
 
 class AllGroupsFragment : Fragment() {
     companion object {
@@ -78,7 +76,9 @@ class AllGroupsFragment : Fragment() {
                 override fun onQueryTextChange(newText: String?): Boolean {
                     queryString = newText ?: ""
 
-                    realm.opUpdateQueryAsync(queryString)
+                    val artifacts = realm.opGetAllArtifactsWithSort(queryString)
+                    (list.adapter as AllArtifactsAdapter).swapArtifacts(artifacts)
+
                     return false
                 }
 
@@ -95,7 +95,7 @@ class AllGroupsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allArtifacts = realm.opGetAllArtifacts(true)
+        val allArtifacts = realm.opGetAllArtifactsWithSort(queryString)
 
         val context = context!!
         list.layoutManager = LinearLayoutManager(context)
@@ -115,7 +115,7 @@ class AllGroupsFragment : Fragment() {
         val versions: TextView = itemView.findViewById(android.R.id.text2)
     }
 
-    inner class AllArtifactsAdapter(context: Context, private val allArtifacts: RealmResults<Artifact>)
+    inner class AllArtifactsAdapter(context: Context, private var allArtifacts: RealmResults<Artifact>)
         : SectionedRecyclerViewAdapter<SectionedViewHolder>() {
 
         private val headerColor: Int
@@ -128,19 +128,31 @@ class AllGroupsFragment : Fragment() {
             headerColor = attrs.getColor(0, Color.WHITE)
             attrs.recycle()
 
+            onListUpdated()
+        }
+
+        fun swapArtifacts(sortedArtifacts: RealmResults<Artifact>) {
+            allArtifacts.removeAllChangeListeners()
+
+            allArtifacts = sortedArtifacts
+            onListUpdated()
+        }
+
+        private fun onListUpdated() {
             rebuildSectionMap(allArtifacts)
 
             allArtifacts.addChangeListener{ _ ->
                 rebuildSectionMap(allArtifacts)
                 notifyDataSetChanged()
             }
+            notifyDataSetChanged()
         }
 
-        private fun rebuildSectionMap(artifacts: RealmResults<Artifact>) {
+        private fun rebuildSectionMap(sortedArtifacts: RealmResults<Artifact>) {
             groupNames.clear()
             groupNameToArtifacts.clear()
 
-            artifacts.forEach { artifact ->
+            sortedArtifacts.forEach { artifact ->
                 val groupName = artifact.groupName
 
                 val artifactsForGroup = groupNameToArtifacts[groupName] ?: mutableListOf<Artifact>().also {
@@ -149,19 +161,6 @@ class AllGroupsFragment : Fragment() {
                 }
 
                 artifactsForGroup.add(artifact)
-            }
-            groupNames.sort()
-
-            groupNameToArtifacts.values.forEach {
-                it.sortWith(Comparator { o1, o2 ->
-                    if (o1 == null) {
-                        return@Comparator if (o2 == null) 0 else -1
-                    }
-                    if (o2 == null) {
-                        return@Comparator 1
-                    }
-                    return@Comparator o1.artifactName.compareTo(o2.artifactName)
-                })
             }
         }
 
