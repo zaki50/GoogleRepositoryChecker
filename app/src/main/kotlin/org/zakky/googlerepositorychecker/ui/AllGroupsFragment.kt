@@ -18,12 +18,13 @@ import io.realm.RealmResults
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
-import org.zakky.googlerepositorychecker.model.Group
-import org.zakky.googlerepositorychecker.realm.opGetAllGroupsOrderedByName
+import org.zakky.googlerepositorychecker.realm.extensions.callTransaction
+import org.zakky.googlerepositorychecker.realm.opGetAllArtifacts
 import org.zakky.googlerepositorychecker.realm.opToggleFavorite
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
+import kotlin.Comparator
 
 class AllGroupsFragment : Fragment() {
     companion object {
@@ -78,8 +79,11 @@ class AllGroupsFragment : Fragment() {
                 override fun onQueryTextChange(newText: String?): Boolean {
                     queryString = newText ?: ""
 
-                    (list.adapter as AllGroupsAdapter).swapResults(realm.opGetAllGroupsOrderedByName(queryString))
-
+                    realm.callTransaction {
+                        opGetAllArtifacts(false).forEach {
+                            it.showInAll = it.groupName.contains(queryString) || it.artifactName.contains(queryString)
+                        }
+                    }
                     return false
                 }
 
@@ -96,12 +100,12 @@ class AllGroupsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allGroups = realm.opGetAllGroupsOrderedByName(queryString)
+        val allGroups = realm.opGetAllArtifacts(true)
 
         val context = context!!
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
-        list.adapter = AllGroupsAdapter(context, allGroups)
+        list.adapter = AllArtifactsAdapter(context, allGroups)
         list.setHasFixedSize(true)
 
         return view
@@ -116,59 +120,60 @@ class AllGroupsFragment : Fragment() {
         val versions: TextView = itemView.findViewById(android.R.id.text2)
     }
 
-    inner class AllGroupsAdapter(context: Context, private var allGroups: RealmResults<Group>)
+    inner class AllArtifactsAdapter(context: Context, private val allArtifacts: RealmResults<Artifact>)
         : SectionedRecyclerViewAdapter<SectionedViewHolder>() {
 
         private val headerColor: Int
 
-        private val groupNameToArtifacts: MutableMap<String/*group name*/, RealmResults<Artifact>> = mutableMapOf()
+        private val groupNames: MutableList<String> = mutableListOf()
+        private val groupNameToArtifacts: MutableMap<String/*group name*/, MutableList<Artifact>> = mutableMapOf()
 
         init {
             val attrs = context.obtainStyledAttributes(ATTRS)
             headerColor = attrs.getColor(0, Color.WHITE)
             attrs.recycle()
 
-            onListUpdated()
-        }
+            rebuildSectionMap(allArtifacts)
 
-        private fun onListUpdated() {
-            rebuildSectionMap(allGroups)
-
-            allGroups.addChangeListener(RealmChangeListener<RealmResults<Group>> {
-                rebuildSectionMap(allGroups)
+            allArtifacts.addChangeListener(RealmChangeListener<RealmResults<Artifact>> {
+                rebuildSectionMap(allArtifacts)
                 notifyDataSetChanged()
             })
             notifyDataSetChanged()
         }
 
-        fun swapResults(results: RealmResults<Group>) {
-            allGroups.removeAllChangeListeners()
-            allGroups = results
-
-            onListUpdated()
-        }
-
-        private fun rebuildSectionMap(allGroups: RealmResults<Group>) {
-            groupNameToArtifacts.values.forEach {
-                it.removeAllChangeListeners()
-            }
+        private fun rebuildSectionMap(artifacts: RealmResults<Artifact>) {
+            groupNames.clear()
             groupNameToArtifacts.clear()
 
-            var sectionIndex = 0
-            allGroups.forEach {
-                val artifacts: RealmResults<Artifact> = it.artifacts!!
-                val currentSectionIndex = sectionIndex
-                artifacts.addChangeListener(RealmChangeListener<RealmResults<Artifact>> {
-                    notifySectionChanged(currentSectionIndex)
+            artifacts.forEach { artifact ->
+                val groupName = artifact.groupName
+
+                val artifactsForGroup = groupNameToArtifacts[groupName] ?: mutableListOf<Artifact>().also {
+                    groupNames.add(groupName)
+                    groupNameToArtifacts[groupName] = it
+                }
+
+                artifactsForGroup.add(artifact)
+            }
+            groupNames.sort()
+
+            groupNameToArtifacts.values.forEach {
+                it.sortWith(Comparator { o1, o2 ->
+                    if (o1 == null) {
+                        return@Comparator if (o2 == null) 0 else -1
+                    }
+                    if (o2 == null) {
+                        return@Comparator 1
+                    }
+                    return@Comparator o1.artifactName.compareTo(o2.artifactName)
                 })
-                groupNameToArtifacts[it.groupName!!] = artifacts
-                sectionIndex++
             }
         }
 
-        override fun getSectionCount() = allGroups.size
+        override fun getSectionCount() = groupNameToArtifacts.size
 
-        override fun getItemCount(section: Int) = allGroups[section]?.artifacts?.size ?: 0
+        override fun getItemCount(section: Int) = groupNameToArtifacts[groupNames[section]]?.size ?: 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionedViewHolder {
             val inflater = LayoutInflater.from(parent.context)
@@ -188,12 +193,13 @@ class AllGroupsFragment : Fragment() {
 
         override fun onBindHeaderViewHolder(holder: SectionedViewHolder, section: Int, expanded: Boolean) {
             val headerHolder = holder as AllGroupsHeaderVH
-            headerHolder.groupName.text = allGroups[section]?.groupName
+            headerHolder.groupName.text = groupNames[section]
         }
 
         override fun onBindViewHolder(holder: SectionedViewHolder, section: Int, relativePosition: Int, absolutePosition: Int) {
             val itemHolder = holder as AllGroupsItemVH
-            val artifact: Artifact = allGroups[section]!!.artifacts!![relativePosition]!!
+            val artifact = groupNameToArtifacts[groupNames[section]]!![relativePosition]
+
             itemHolder.artifactName.text = artifact.artifactName
             itemHolder.versions.text = artifact.versions
 
