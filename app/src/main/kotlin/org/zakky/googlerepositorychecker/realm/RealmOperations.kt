@@ -4,6 +4,7 @@ package org.zakky.googlerepositorychecker.realm
 
 import io.realm.Realm
 import io.realm.RealmObject
+import io.realm.Sort
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.model.Favorite
 import org.zakky.googlerepositorychecker.model.FavoritesContainer
@@ -17,6 +18,12 @@ fun Realm.opCreateInitialDataIfNeeded() {
     createObject<FavoritesContainer>()
 }
 
+fun Realm.opResetViewState() {
+    opGetAllArtifacts(false).forEach {
+        it.showInAll = true
+    }
+}
+
 fun Realm.opContainsAnyArtifacts(): Boolean {
     val allArtifacts = where<Artifact>().findAll()
     return !allArtifacts.isEmpty()
@@ -27,7 +34,16 @@ fun Realm.opGetAllArtifacts(onlyShowInAll: Boolean) = where<Artifact>().apply {
                 equalTo(Artifact::showInAll, true)
             }
         }
-        .findAll()
+        .sort(Artifact::groupName, Sort.ASCENDING, Artifact::artifactName, Sort.ASCENDING)
+        .findAll()!!
+
+fun Realm.opUpdateQueryAsync(queryString: String) = executeTransactionAsync {
+    it.opGetAllArtifacts(false).forEach {
+        it.showInAll = it.groupName.contains(queryString) || it.artifactName.contains(queryString)
+    }
+}
+
+
 
 fun Realm.opGetFavoriteArtifacts() = where<FavoritesContainer>()
         .findFirst()!!.favorites

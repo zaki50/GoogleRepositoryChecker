@@ -13,14 +13,13 @@ import android.widget.Toast
 import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter
 import com.afollestad.sectionedrecyclerview.SectionedViewHolder
 import io.realm.Realm
-import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import org.zakky.googlerepositorychecker.MyApplication
 import org.zakky.googlerepositorychecker.R
 import org.zakky.googlerepositorychecker.model.Artifact
-import org.zakky.googlerepositorychecker.realm.extensions.callTransaction
 import org.zakky.googlerepositorychecker.realm.opGetAllArtifacts
 import org.zakky.googlerepositorychecker.realm.opToggleFavorite
+import org.zakky.googlerepositorychecker.realm.opUpdateQueryAsync
 import org.zakky.googlerepositorychecker.ui.recyclerview.ItemDividerDecoration
 import toothpick.Toothpick
 import javax.inject.Inject
@@ -79,11 +78,7 @@ class AllGroupsFragment : Fragment() {
                 override fun onQueryTextChange(newText: String?): Boolean {
                     queryString = newText ?: ""
 
-                    realm.callTransaction {
-                        opGetAllArtifacts(false).forEach {
-                            it.showInAll = it.groupName.contains(queryString) || it.artifactName.contains(queryString)
-                        }
-                    }
+                    realm.opUpdateQueryAsync(queryString)
                     return false
                 }
 
@@ -100,12 +95,12 @@ class AllGroupsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allGroups = realm.opGetAllArtifacts(true)
+        val allArtifacts = realm.opGetAllArtifacts(true)
 
         val context = context!!
         list.layoutManager = LinearLayoutManager(context)
         list.addItemDecoration(ItemDividerDecoration(context))
-        list.adapter = AllArtifactsAdapter(context, allGroups)
+        list.adapter = AllArtifactsAdapter(context, allArtifacts)
         list.setHasFixedSize(true)
 
         return view
@@ -135,11 +130,10 @@ class AllGroupsFragment : Fragment() {
 
             rebuildSectionMap(allArtifacts)
 
-            allArtifacts.addChangeListener(RealmChangeListener<RealmResults<Artifact>> {
+            allArtifacts.addChangeListener{ _ ->
                 rebuildSectionMap(allArtifacts)
                 notifyDataSetChanged()
-            })
-            notifyDataSetChanged()
+            }
         }
 
         private fun rebuildSectionMap(artifacts: RealmResults<Artifact>) {

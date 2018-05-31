@@ -458,3 +458,12 @@ fun <T : RealmModel> RealmQuery<T>.minimumDate(property: KMutableProperty1<T, ou
 fun <T : RealmModel> RealmQuery<T>.maximumDate(property: KMutableProperty1<T, out Date?>): Date? {
     return this.maximumDate(property.name)
 }
+
+fun <T : RealmModel> RealmQuery<T>.sort(property: KMutableProperty1<T, *>, sort: Sort = Sort.ASCENDING): RealmQuery<T> {
+    return this.sort(property.name, sort)
+}
+
+fun <T : RealmModel> RealmQuery<T>.sort(property1: KMutableProperty1<T, *>, sort1: Sort = Sort.ASCENDING,
+                                        property2: KMutableProperty1<T, *>, sort2: Sort = Sort.ASCENDING): RealmQuery<T> {
+    return this.sort(property1.name, sort1, property2.name, sort2)
+}
