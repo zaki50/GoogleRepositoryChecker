@@ -22,7 +22,16 @@ fun Realm.opContainsAnyArtifacts(): Boolean {
     return !allArtifacts.isEmpty()
 }
 
-fun Realm.opGetAllGroupsOrderedByName() = where<Group>().sort(Group::groupName.name).findAll()!!
+fun Realm.opGetAllGroupsOrderedByName(query: String) = where<Group>().let {
+            if (query.isEmpty()) {
+                it
+            } else {
+                it.contains(Group::groupName, query)
+                        .or()
+                        .contains("artifacts.artifactName", query)
+            }
+        }
+        .sort(Group::groupName.name).findAll()!!
 
 fun Realm.opGetFavoriteArtifacts() = where<FavoritesContainer>()
         .findFirst()!!.favorites

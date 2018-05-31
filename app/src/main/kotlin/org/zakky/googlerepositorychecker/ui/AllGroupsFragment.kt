@@ -6,9 +6,8 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.support.v7.widget.SearchView
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter
@@ -28,6 +27,8 @@ import javax.inject.Inject
 
 class AllGroupsFragment : Fragment() {
     companion object {
+        private const val STATE_QUERY_STRING = "queryString"
+
         fun newInstance() = AllGroupsFragment()
 
         private val ATTRS = intArrayOf(
@@ -40,10 +41,15 @@ class AllGroupsFragment : Fragment() {
 
     private lateinit var list: RecyclerView
 
+    private lateinit var queryString: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Toothpick.inject(this, Toothpick.openScope(MyApplication.APP_SCOPE_NAME))
+
+        setHasOptionsMenu(true)
+        queryString = savedInstanceState?.getString(STATE_QUERY_STRING) ?: ""
     }
 
     override fun onDestroy() {
@@ -52,12 +58,45 @@ class AllGroupsFragment : Fragment() {
         realm.close()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString(STATE_QUERY_STRING, queryString)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater.inflate(R.menu.fragment_all_groups, menu)
+        (menu?.findItem(R.id.search)?.actionView as SearchView?)?.apply {
+            if (!queryString.isEmpty()) {
+                // SearchViewを表示させてからクエリをリストア
+                onActionViewExpanded()
+                setQuery(queryString, false)
+            }
+            setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    queryString = newText ?: ""
+
+                    (list.adapter as AllGroupsAdapter).swapResults(realm.opGetAllGroupsOrderedByName(queryString))
+
+                    return false
+                }
+
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+            })
+
+        }
+    }
+
     @Suppress("HasPlatformType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
 
-        val allGroups = realm.opGetAllGroupsOrderedByName()
+        val allGroups = realm.opGetAllGroupsOrderedByName(queryString)
 
         val context = context!!
         list.layoutManager = LinearLayoutManager(context)
@@ -77,7 +116,7 @@ class AllGroupsFragment : Fragment() {
         val versions: TextView = itemView.findViewById(android.R.id.text2)
     }
 
-    inner class AllGroupsAdapter(context: Context, private val allGroups: RealmResults<Group>)
+    inner class AllGroupsAdapter(context: Context, private var allGroups: RealmResults<Group>)
         : SectionedRecyclerViewAdapter<SectionedViewHolder>() {
 
         private val headerColor: Int
@@ -89,12 +128,24 @@ class AllGroupsFragment : Fragment() {
             headerColor = attrs.getColor(0, Color.WHITE)
             attrs.recycle()
 
+            onListUpdated()
+        }
+
+        private fun onListUpdated() {
             rebuildSectionMap(allGroups)
 
             allGroups.addChangeListener(RealmChangeListener<RealmResults<Group>> {
                 rebuildSectionMap(allGroups)
                 notifyDataSetChanged()
             })
+            notifyDataSetChanged()
+        }
+
+        fun swapResults(results: RealmResults<Group>) {
+            allGroups.removeAllChangeListeners()
+            allGroups = results
+
+            onListUpdated()
         }
 
         private fun rebuildSectionMap(allGroups: RealmResults<Group>) {
@@ -110,7 +161,7 @@ class AllGroupsFragment : Fragment() {
                 artifacts.addChangeListener(RealmChangeListener<RealmResults<Artifact>> {
                     notifySectionChanged(currentSectionIndex)
                 })
-                groupNameToArtifacts.put(it.groupName!!, artifacts)
+                groupNameToArtifacts[it.groupName!!] = artifacts
                 sectionIndex++
             }
         }
