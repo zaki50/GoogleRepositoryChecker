@@ -69,7 +69,7 @@ class FavoritesFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoritesItemVH {
             val inflater = LayoutInflater.from(parent.context)
-            val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
+            val view = inflater.inflate(R.layout.item_artifact, parent, false)
             return FavoritesItemVH(view)
         }
 

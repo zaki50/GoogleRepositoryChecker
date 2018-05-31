@@ -178,7 +178,7 @@ class AllGroupsFragment : Fragment() {
                 }
                 VIEW_TYPE_FOOTER -> throw RuntimeException("we don't use footer")
                 else /* normal item */ -> {
-                    val view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false)
+                    val view = inflater.inflate(R.layout.item_artifact, parent, false)
                     AllGroupsItemVH(view)
                 }
             }
