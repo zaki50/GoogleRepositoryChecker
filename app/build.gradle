@@ -34,6 +34,12 @@ kapt {
     }
 }
 
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
 // enable @ParametersAreNonnullByDefault annotation. See https://blog.jetbrains.com/kotlin/2017/08/kotlin-1-1-4-is-out/
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
@@ -44,6 +50,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.kotlinCoroutine"
 
     implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
     implementation "com.android.support:design:$versions.supportLibrary"
