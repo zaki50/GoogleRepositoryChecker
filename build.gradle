@@ -2,37 +2,39 @@
 
 buildscript {
     ext.versions = [
-            'compileSdk': 28,
-            'minSdk': 21,
-            'targetSdk': 28,
-            'buildTools': '28.0.3',
-            'kotlin': '1.2.71',
-            'kotlinCoroutine': '0.26.0',
-            'supportLibrary': '28.0.0',
-            'constraintLayout': '1.1.3',
+            'compileSdk'           : 28,
+            'minSdk'               : 21,
+            'targetSdk'            : 28,
+            'buildTools'           : '28.0.3',
+            'kotlin'               : '1.3.0-rc-57',
+            'kotlinCoroutine'      : '0.30.1',
+            'supportLibrary'       : '28.0.0',
+            'constraintLayout'     : '1.1.3',
             'architectureComponent': '1.1.1',
             // https://firebase.google.com/support/release-notes/android?hl=en
             // https://github.com/realm/realm-java
-            'realm': '5.7.0',
+            'realm'                : '5.7.0',
             // https://github.com/realm/realm-android-adapters
-            'realmAdapter': '3.0.0',
+            'realmAdapter'         : '3.0.0',
             // http://square.github.io/retrofit/
-            'retrofit': '2.4.0',
-            'okhttp': '3.11.0',
+            'retrofit'             : '2.4.0',
+            'okhttp'               : '3.11.0',
             // https://github.com/ReactiveX/RxJava
-            'rxJava': '2.2.2',
-            'rxAndroid': '2.1.0',
-            'sectionedRecycleview': '0.5.0',
-            'toothpick': '1.0.7',
-            'junit': '4.12',
-            'espresso': '3.0.1'
+            'rxJava'               : '2.2.2',
+            'rxAndroid'            : '2.1.0',
+            'sectionedRecycleview' : '0.5.0',
+            'toothpick'            : '1.0.7',
+            'junit'                : '4.12',
+            'espresso'             : '3.0.1'
     ]
     repositories {
         google()
         jcenter()
+        // for kotlin 1.3 rc
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0-alpha12'
+        classpath 'com.android.tools.build:gradle:3.3.0-alpha13'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         classpath "io.realm:realm-gradle-plugin:$versions.realm"
 
@@ -46,6 +48,9 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+
+        // for kotlin 1.3 rc
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
 }
 
