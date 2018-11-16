@@ -18,10 +18,8 @@ buildscript {
             'realmAdapter'         : '3.0.0',
             // http://square.github.io/retrofit/
             'retrofit'             : '2.4.0',
+            'retrofitCoroutine'    : '0.9.2',
             'okhttp'               : '3.11.0',
-            // https://github.com/ReactiveX/RxJava
-            'rxJava'               : '2.2.2',
-            'rxAndroid'            : '2.1.0',
             'sectionedRecycleview' : '0.5.0',
             'toothpick'            : '1.0.7',
             'junit'                : '4.12',
@@ -34,7 +32,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0-alpha03'
+        classpath 'com.android.tools.build:gradle:3.4.0-alpha04'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         classpath "io.realm:realm-gradle-plugin:$versions.realm"
 
@@ -75,7 +73,6 @@ task clean(type: Delete) {
 
 wrapper {
     gradleVersion = '5.0-milestone-1'
-    //noinspection GroovyAccessibility
     distributionType = Wrapper.DistributionType.ALL
 }
 

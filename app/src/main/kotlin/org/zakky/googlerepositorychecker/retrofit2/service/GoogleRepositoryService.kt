@@ -1,6 +1,6 @@
 package org.zakky.googlerepositorychecker.retrofit2.service
 
-import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 import org.zakky.googlerepositorychecker.model.Artifact
 import org.zakky.googlerepositorychecker.retrofit2.converter.ArtifactXml
 import org.zakky.googlerepositorychecker.retrofit2.converter.GroupXml
@@ -16,9 +16,9 @@ interface GoogleRepositoryService {
 
     @GET("master-index.xml")
     @GroupXml
-    fun listGroups(): Single<List<String>>
+    fun listGroups(): Deferred<List<String>>
 
     @GET("{groupPath}/group-index.xml")
     @ArtifactXml
-    fun listArtifact(@Path("groupPath", encoded = true) groupPath: String): Single<List<Artifact>>
+    fun listArtifact(@Path("groupPath", encoded = true) groupPath: String): Deferred<List<Artifact>>
 }
