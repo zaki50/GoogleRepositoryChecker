@@ -33,7 +33,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0-alpha10'
+        classpath 'com.android.tools.build:gradle:3.5.0-alpha01'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         classpath "io.realm:realm-gradle-plugin:$versions.realm"
 
@@ -73,7 +73,7 @@ task clean(type: Delete) {
 }
 
 wrapper {
-    gradleVersion = '5.1-milestone-1'
+    gradleVersion = '5.1.1'
     distributionType = Wrapper.DistributionType.ALL
 }
 
