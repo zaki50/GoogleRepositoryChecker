@@ -13,7 +13,7 @@ buildscript {
             'architectureComponent': '1.1.1',
             // https://firebase.google.com/support/release-notes/android?hl=en
             // https://github.com/realm/realm-java
-            'realm'                : '5.7.0',
+            'realm'                : '5.9.0',
             // https://github.com/realm/realm-android-adapters
             'realmAdapter'         : '3.0.0',
             // http://square.github.io/retrofit/
