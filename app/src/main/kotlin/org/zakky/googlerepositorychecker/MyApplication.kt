@@ -5,12 +5,8 @@ import android.app.Application
 import io.realm.Realm
 import org.zakky.googlerepositorychecker.realm.opCreateInitialDataIfNeeded
 import org.zakky.googlerepositorychecker.toothpick.ApplicationModule
-import org.zakky.googlerepositorychecker.toothpick.FactoryRegistry
-import org.zakky.googlerepositorychecker.toothpick.MemberInjectorRegistry
 import toothpick.Toothpick
 import toothpick.configuration.Configuration
-import toothpick.registries.FactoryRegistryLocator
-import toothpick.registries.MemberInjectorRegistryLocator
 
 @SuppressLint("Registered")
 open class MyApplication : Application() {
@@ -46,11 +42,8 @@ open class MyApplication : Application() {
 
     protected open fun setToothpickConfiguration() {
         val config = Configuration.forProduction()
-                .disableReflection()
 
         Toothpick.setConfiguration(config)
-        FactoryRegistryLocator.setRootRegistry(FactoryRegistry())
-        MemberInjectorRegistryLocator.setRootRegistry(MemberInjectorRegistry())
     }
 
     private fun setupInitialData() {

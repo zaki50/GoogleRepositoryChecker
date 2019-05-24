@@ -28,12 +28,6 @@ android {
     }
 }
 
-kapt {
-    arguments {
-        arg('toothpick_registry_package_name', "${android.defaultConfig.applicationId}.toothpick")
-    }
-}
-
 // enable @ParametersAreNonnullByDefault annotation. See https://blog.jetbrains.com/kotlin/2017/08/kotlin-1-1-4-is-out/
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
@@ -59,6 +53,7 @@ dependencies {
     implementation "com.afollestad:sectioned-recyclerview:$versions.sectionedRecycleview"
 
     implementation "com.github.stephanenicolas.toothpick:toothpick-runtime:$versions.toothpick"
+    implementation "com.github.stephanenicolas.toothpick:smoothie-androidx:$versions.toothpick"
     kapt "com.github.stephanenicolas.toothpick:toothpick-compiler:$versions.toothpick"
     testImplementation "com.github.stephanenicolas.toothpick:toothpick-testing:$versions.toothpick"
 
