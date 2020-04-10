@@ -15,7 +15,7 @@ android {
         targetSdkVersion versions.targetSdk
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -47,9 +47,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.kotlinCoroutine"
 
-    implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
-    implementation "com.android.support:design:$versions.supportLibrary"
-    implementation "com.android.support.constraint:constraint-layout:$versions.constraintLayout"
+    implementation "androidx.appcompat:appcompat:$versions.appCompaty"
+    implementation "com.google.android.material:material:$versions.material"
+    implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
 
     implementation "com.squareup.retrofit2:retrofit:$versions.retrofit"
     implementation "com.squareup.retrofit2:converter-scalars:$versions.retrofit"
@@ -64,7 +64,5 @@ dependencies {
     testImplementation "com.github.stephanenicolas.toothpick:toothpick-testing:$versions.toothpick"
 
     testImplementation "junit:junit:$versions.junit"
-    androidTestImplementation ("com.android.support.test.espresso:espresso-core:$versions.espresso", {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso"
 }

@@ -3,10 +3,10 @@ package org.zakky.googlerepositorychecker.ui
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.widget.SearchView
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -62,12 +62,12 @@ class AllGroupsFragment : Fragment() {
         outState.putString(STATE_QUERY_STRING, queryString)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
         inflater.inflate(R.menu.fragment_all_groups, menu)
-        (menu?.findItem(R.id.search)?.actionView as SearchView?)?.apply {
-            if (!queryString.isEmpty()) {
+        (menu.findItem(R.id.search)?.actionView as SearchView?)?.apply {
+            if (queryString.isNotEmpty()) {
                 // SearchViewを表示させてからクエリをリストア
                 onActionViewExpanded()
                 setQuery(queryString, false)
