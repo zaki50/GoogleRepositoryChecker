@@ -16,9 +16,9 @@ interface GoogleRepositoryService {
 
     @GET("master-index.xml")
     @GroupXml
-    fun listGroups(): Deferred<List<String>>
+    suspend fun listGroups(): List<String>
 
     @GET("{groupPath}/group-index.xml")
     @ArtifactXml
-    fun listArtifact(@Path("groupPath", encoded = true) groupPath: String): Deferred<List<Artifact>>
+    suspend fun listArtifact(@Path("groupPath", encoded = true) groupPath: String): List<Artifact>
 }

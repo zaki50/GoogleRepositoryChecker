@@ -141,8 +141,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             var isFirstSave = true
             refreshMenu.isEnabled = false
             try {
-                for (groupName in service.listGroups().await()) {
-                    val artifacts = service.listArtifact(GoogleRepositoryService.toPath(groupName)).await()
+                for (groupName in service.listGroups()) {
+                    val artifacts = service.listArtifact(GoogleRepositoryService.toPath(groupName))
                     scope.getInstance(Realm::class.java).use { realm ->
                         realm.executeTransaction {
                             if (isFirstSave) {

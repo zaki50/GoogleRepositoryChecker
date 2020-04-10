@@ -1,6 +1,5 @@
 package org.zakky.googlerepositorychecker.toothpick
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import io.realm.Realm
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,7 +24,6 @@ class ApplicationModule(@Suppress("UNUSED_PARAMETER") app: MyApplication) : Modu
         val retrofit = Retrofit.Builder().baseUrl("https://dl.google.com/dl/android/maven2/")
                 .client(client)
                 .addConverterFactory(GoogleRepositoryXmlConverterFactory.create())
-                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()
 
         bind(Retrofit::class.java).toInstance(retrofit)
