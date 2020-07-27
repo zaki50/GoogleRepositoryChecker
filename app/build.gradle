@@ -30,6 +30,16 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    signingConfigs {
+        release {
+            enableV3Signing(true)
+            enableV4Signing(true)
+        }
+        debug {
+            enableV3Signing(true)
+            enableV4Signing(true)
+        }
+    }
     lintOptions {
         lintConfig file('lint.xml')
     }
