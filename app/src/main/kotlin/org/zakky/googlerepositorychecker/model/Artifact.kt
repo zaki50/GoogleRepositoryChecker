@@ -17,7 +17,7 @@ open class Artifact(
         var group: Group? = null,
         @PrimaryKey
         @Required
-        var id: String = Artifact.toId(groupName, artifactName)
+        var id: String = toId(groupName, artifactName)
 ) : RealmModel {
     companion object {
         fun toId(groupName: String, artifactName: String): String {
@@ -25,6 +25,7 @@ open class Artifact(
         }
     }
 
+    @Suppress("unused")
     val versionList: List<String>
         get() = versions.split(",")
 

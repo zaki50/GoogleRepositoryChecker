@@ -4,9 +4,7 @@
 package org.zakky.googlerepositorychecker.realm.extensions
 
 import io.realm.*
-import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.reflect.KMutableProperty1
 
 inline fun <T> Realm.callTransaction(crossinline action: Realm.() -> T): T {
     val ref = AtomicReference<T>()

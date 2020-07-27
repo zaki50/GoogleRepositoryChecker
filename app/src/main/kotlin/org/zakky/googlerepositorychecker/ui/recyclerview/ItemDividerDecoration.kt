@@ -23,14 +23,14 @@ class ItemDividerDecoration(context: Context) : RecyclerView.ItemDecoration() {
     }
 
     override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        drawDivider(c, parent);
+        drawDivider(c, parent)
     }
 
     private fun drawDivider(c: Canvas, parent: RecyclerView) {
         val left = parent.paddingLeft
         val right = parent.width - parent.paddingRight
 
-        for (i in 0..parent.childCount - 1) {
+        for (i in 0 until parent.childCount) {
             val child = parent.getChildAt(i)
             val params = child.layoutParams as RecyclerView.LayoutParams
             val top = child.bottom + params.bottomMargin

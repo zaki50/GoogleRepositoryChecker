@@ -34,9 +34,8 @@ class BottomNavigationBehavior(context: Context, attrs: AttributeSet) : Coordina
 
     override fun onDependentViewChanged(parent: CoordinatorLayout, child: BottomNavigationView, dependency: View): Boolean {
         if (dependency is AppBarLayout) {
-            val appbar = dependency
-            val bottom = appbar.bottom.toFloat()
-            val height = appbar.height.toFloat()
+            val bottom = dependency.bottom.toFloat()
+            val height = dependency.height.toFloat()
             val hidingRate = (height - bottom) / height
             child.translationY = child.height * hidingRate
             return true

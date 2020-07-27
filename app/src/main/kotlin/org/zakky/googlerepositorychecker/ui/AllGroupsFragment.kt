@@ -90,7 +90,6 @@ class AllGroupsFragment : Fragment() {
         }
     }
 
-    @Suppress("HasPlatformType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_group_list, container, false)
         list = view.findViewById(R.id.list)
@@ -141,7 +140,8 @@ class AllGroupsFragment : Fragment() {
         private fun onListUpdated() {
             rebuildSectionMap(allArtifacts)
 
-            allArtifacts.addChangeListener{ _ ->
+            @Suppress("RedundantLambdaArrow")
+            allArtifacts.addChangeListener{  _ ->
                 rebuildSectionMap(allArtifacts)
                 notifyDataSetChanged()
             }

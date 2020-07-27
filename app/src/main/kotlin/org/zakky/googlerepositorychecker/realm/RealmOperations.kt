@@ -24,7 +24,7 @@ fun Realm.opContainsAnyArtifacts(): Boolean {
 }
 
 fun Realm.opGetAllArtifactsWithSort(queryString: String) = where<Artifact>().apply {
-            if (!queryString.isEmpty()) {
+            if (queryString.isNotEmpty()) {
                 contains(Artifact::groupName, queryString).or().contains(Artifact::artifactName, queryString)
             }
         }
